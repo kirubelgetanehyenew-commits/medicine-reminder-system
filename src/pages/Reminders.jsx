@@ -1,10 +1,21 @@
 import { useEffect, useState } from "react";
+
 import toast from "react-hot-toast";
+
 import { motion } from "framer-motion";
+
+import {
+  FaCheck,
+  FaTrash,
+  FaEdit,
+  FaSearch,
+} from "react-icons/fa";
 
 function Reminders() {
   const [medicines, setMedicines] = useState([]);
+
   const [search, setSearch] = useState("");
+
   const [filter, setFilter] = useState("all");
 
   const [editingMedicine, setEditingMedicine] =
@@ -52,7 +63,7 @@ function Reminders() {
 
     saveToLocalStorage(updated);
 
-    toast.success("Status Updated");
+    toast.success("Medicine Status Updated");
   };
 
   const editMedicine = (medicine) => {
@@ -86,7 +97,7 @@ function Reminders() {
 
     saveToLocalStorage([]);
 
-    toast.success("All Reminders Deleted");
+    toast.success("All Medicines Deleted");
   };
 
   const filteredMedicines = medicines
@@ -105,43 +116,66 @@ function Reminders() {
       }
 
       return true;
-    });
+    })
+    .sort((a, b) =>
+      a.time.localeCompare(b.time)
+    );
+
+  const completedCount = medicines.filter(
+    (medicine) => medicine.completed
+  ).length;
+
+  const pendingCount =
+    medicines.length - completedCount;
+
+  const completionRate =
+    medicines.length === 0
+      ? 0
+      : Math.round(
+          (completedCount / medicines.length) *
+            100
+        );
 
   return (
     <div className="min-h-screen px-6 py-10">
-      {/* Header */}
+      {/* HEADER */}
 
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 mb-10">
+      <div className="flex flex-col xl:flex-row justify-between gap-6 mb-10">
         <div>
-          <h1 className="text-5xl font-black">
+          <h1 className="text-6xl font-black bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">
             Medicine Reminders
           </h1>
 
-          <p className="text-gray-300 mt-2">
-            Manage your medicine schedules easily
+          <p className="text-gray-300 mt-3 text-lg">
+            Track and manage your medicine
+            schedule beautifully.
           </p>
         </div>
 
         <button
           onClick={clearAllMedicines}
-          className="bg-red-500 hover:bg-red-600 px-6 py-3 rounded-2xl font-bold transition"
+          className="bg-red-500 hover:bg-red-600 transition px-8 py-4 rounded-2xl font-bold h-fit"
         >
           Clear All
         </button>
       </div>
 
-      {/* Search & Filter */}
+      {/* SEARCH & FILTER */}
 
-      <div className="flex flex-col lg:flex-row gap-5 mb-10">
-        <input
-          type="text"
-          placeholder="Search medicine..."
-          value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
-          className="flex-1 bg-white/10 backdrop-blur-xl border border-white/10 p-4 rounded-2xl outline-none"
-        />
+      <div className="grid lg:grid-cols-3 gap-5 mb-10">
+        <div className="lg:col-span-2 relative">
+          <FaSearch className="absolute left-5 top-5 text-gray-400" />
+
+          <input
+            type="text"
+            placeholder="Search medicine..."
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            className="w-full pl-14 p-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 outline-none"
+          />
+        </div>
 
         <select
           value={filter}
@@ -164,71 +198,86 @@ function Reminders() {
         </select>
       </div>
 
-      {/* Stats */}
+      {/* STATS */}
 
-      <div className="grid md:grid-cols-3 gap-5 mb-10">
-        <div className="bg-white/10 backdrop-blur-xl border border-white/10 p-6 rounded-[30px]">
-          <h3 className="text-gray-300">
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
+        <div className="bg-white/10 backdrop-blur-xl border border-white/10 p-7 rounded-[30px]">
+          <p className="text-gray-300">
             Total Medicines
-          </h3>
+          </p>
 
           <h1 className="text-5xl font-black mt-3">
             {medicines.length}
           </h1>
         </div>
 
-        <div className="bg-green-500/20 border border-green-500/20 p-6 rounded-[30px]">
-          <h3 className="text-green-300">
+        <div className="bg-green-500/20 border border-green-500/20 p-7 rounded-[30px]">
+          <p className="text-green-300">
             Completed
-          </h3>
+          </p>
 
           <h1 className="text-5xl font-black mt-3">
-            {
-              medicines.filter(
-                (medicine) =>
-                  medicine.completed
-              ).length
-            }
+            {completedCount}
           </h1>
         </div>
 
-        <div className="bg-red-500/20 border border-red-500/20 p-6 rounded-[30px]">
-          <h3 className="text-red-300">
+        <div className="bg-red-500/20 border border-red-500/20 p-7 rounded-[30px]">
+          <p className="text-red-300">
             Pending
-          </h3>
+          </p>
 
           <h1 className="text-5xl font-black mt-3">
-            {
-              medicines.filter(
-                (medicine) =>
-                  !medicine.completed
-              ).length
-            }
+            {pendingCount}
+          </h1>
+        </div>
+
+        <div className="bg-cyan-500/20 border border-cyan-500/20 p-7 rounded-[30px]">
+          <p className="text-cyan-300">
+            Completion Rate
+          </p>
+
+          <h1 className="text-5xl font-black mt-3">
+            {completionRate}%
           </h1>
         </div>
       </div>
 
-      {/* Medicine Cards */}
+      {/* EMPTY STATE */}
 
       {filteredMedicines.length === 0 ? (
-        <div className="text-center mt-20">
-          <h2 className="text-3xl font-bold text-gray-300">
+        <div className="text-center mt-28">
+          <h1 className="text-8xl">
+            💊
+          </h1>
+
+          <h2 className="text-5xl font-black mt-6">
             No Medicines Found
           </h2>
 
-          <p className="text-gray-400 mt-3">
-            Add new medicines to begin tracking.
+          <p className="text-gray-400 mt-4 text-lg">
+            Start by adding your first medicine
+            reminder.
           </p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 2xl:grid-cols-3 gap-8">
           {filteredMedicines.map((medicine) => (
             <motion.div
               key={medicine.id}
-              whileHover={{ scale: 1.03 }}
+              initial={{
+                opacity: 0,
+                y: 50,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              whileHover={{
+                scale: 1.03,
+              }}
               className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[35px] p-7 shadow-2xl"
             >
-              {/* Top */}
+              {/* TOP */}
 
               <div className="flex justify-between items-start">
                 <div>
@@ -254,59 +303,83 @@ function Reminders() {
                 </div>
               </div>
 
-              {/* Details */}
+              {/* BADGES */}
 
-              <div className="mt-8 space-y-4">
-                <div className="bg-black/20 p-4 rounded-2xl">
+              <div className="flex flex-wrap gap-3 mt-5">
+                <span className="bg-pink-500/20 text-pink-300 px-4 py-2 rounded-full text-sm">
+                  {medicine.category ||
+                    "General"}
+                </span>
+
+                <span
+                  className={`px-4 py-2 rounded-full text-sm ${
+                    medicine.priority === "High"
+                      ? "bg-red-500/20 text-red-300"
+                      : medicine.priority ===
+                        "Medium"
+                      ? "bg-yellow-500/20 text-yellow-300"
+                      : "bg-green-500/20 text-green-300"
+                  }`}
+                >
+                  {medicine.priority ||
+                    "Medium"}{" "}
+                  Priority
+                </span>
+              </div>
+
+              {/* DETAILS */}
+
+              <div className="space-y-4 mt-7">
+                <div className="bg-black/20 p-5 rounded-2xl">
                   <p className="text-gray-400 text-sm">
                     Reminder Time
                   </p>
 
-                  <h3 className="text-2xl font-bold mt-1">
+                  <h3 className="text-2xl font-bold mt-2">
                     ⏰ {medicine.time}
                   </h3>
                 </div>
 
-                <div className="bg-black/20 p-4 rounded-2xl">
+                <div className="bg-black/20 p-5 rounded-2xl">
                   <p className="text-gray-400 text-sm">
                     Notes
                   </p>
 
-                  <p className="mt-2">
+                  <p className="mt-2 text-gray-200">
                     {medicine.notes ||
                       "No additional notes"}
                   </p>
                 </div>
               </div>
 
-              {/* Buttons */}
+              {/* BUTTONS */}
 
-              <div className="grid grid-cols-3 gap-3 mt-8">
+              <div className="grid grid-cols-3 gap-4 mt-8">
                 <button
                   onClick={() =>
                     toggleComplete(medicine.id)
                   }
-                  className="bg-green-500 hover:bg-green-600 p-3 rounded-2xl font-bold transition"
+                  className="bg-green-500 hover:bg-green-600 transition p-4 rounded-2xl flex items-center justify-center"
                 >
-                  Done
+                  <FaCheck />
                 </button>
 
                 <button
                   onClick={() =>
                     editMedicine(medicine)
                   }
-                  className="bg-blue-500 hover:bg-blue-600 p-3 rounded-2xl font-bold transition"
+                  className="bg-blue-500 hover:bg-blue-600 transition p-4 rounded-2xl flex items-center justify-center"
                 >
-                  Edit
+                  <FaEdit />
                 </button>
 
                 <button
                   onClick={() =>
                     deleteMedicine(medicine.id)
                   }
-                  className="bg-red-500 hover:bg-red-600 p-3 rounded-2xl font-bold transition"
+                  className="bg-red-500 hover:bg-red-600 transition p-4 rounded-2xl flex items-center justify-center"
                 >
-                  Delete
+                  <FaTrash />
                 </button>
               </div>
             </motion.div>
@@ -314,11 +387,11 @@ function Reminders() {
         </div>
       )}
 
-      {/* Edit Modal */}
+      {/* EDIT MODAL */}
 
       {editingMedicine && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 px-5">
-          <div className="w-full max-w-lg bg-slate-900 border border-white/10 rounded-[35px] p-8">
+          <div className="w-full max-w-xl bg-slate-900 border border-white/10 rounded-[35px] p-8">
             <h2 className="text-4xl font-black mb-8">
               Edit Medicine
             </h2>
@@ -360,6 +433,46 @@ function Reminders() {
                 className="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none"
               />
 
+              <input
+                type="text"
+                value={
+                  editingMedicine.category
+                }
+                onChange={(e) =>
+                  setEditingMedicine({
+                    ...editingMedicine,
+                    category: e.target.value,
+                  })
+                }
+                placeholder="Category"
+                className="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none"
+              />
+
+              <select
+                value={
+                  editingMedicine.priority
+                }
+                onChange={(e) =>
+                  setEditingMedicine({
+                    ...editingMedicine,
+                    priority: e.target.value,
+                  })
+                }
+                className="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none"
+              >
+                <option value="Low">
+                  Low Priority
+                </option>
+
+                <option value="Medium">
+                  Medium Priority
+                </option>
+
+                <option value="High">
+                  High Priority
+                </option>
+              </select>
+
               <textarea
                 value={editingMedicine.notes}
                 onChange={(e) =>
@@ -371,10 +484,10 @@ function Reminders() {
                 className="w-full h-32 p-4 rounded-2xl bg-black/20 border border-white/10 outline-none resize-none"
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-5 pt-3">
                 <button
                   onClick={saveEdit}
-                  className="bg-green-500 hover:bg-green-600 p-4 rounded-2xl font-bold transition"
+                  className="bg-green-500 hover:bg-green-600 transition p-4 rounded-2xl font-bold"
                 >
                   Save Changes
                 </button>
@@ -383,7 +496,7 @@ function Reminders() {
                   onClick={() =>
                     setEditingMedicine(null)
                   }
-                  className="bg-red-500 hover:bg-red-600 p-4 rounded-2xl font-bold transition"
+                  className="bg-red-500 hover:bg-red-600 transition p-4 rounded-2xl font-bold"
                 >
                   Cancel
                 </button>
