@@ -9,7 +9,14 @@ import {
   FaTrash,
   FaEdit,
   FaSearch,
+  FaFilePdf,
 } from "react-icons/fa";
+
+import Confetti from "react-confetti";
+
+import jsPDF from "jspdf";
+
+import html2canvas from "html2canvas";
 
 function Reminders() {
   const [medicines, setMedicines] = useState([]);
@@ -20,6 +27,9 @@ function Reminders() {
 
   const [editingMedicine, setEditingMedicine] =
     useState(null);
+
+  const [showConfetti, setShowConfetti] =
+    useState(false);
 
   useEffect(() => {
     const storedMedicines =
@@ -63,7 +73,13 @@ function Reminders() {
 
     saveToLocalStorage(updated);
 
-    toast.success("Medicine Status Updated");
+    setShowConfetti(true);
+
+    setTimeout(() => {
+      setShowConfetti(false);
+    }, 3000);
+
+    toast.success("Medicine Completed");
   };
 
   const editMedicine = (medicine) => {
@@ -98,6 +114,34 @@ function Reminders() {
     saveToLocalStorage([]);
 
     toast.success("All Medicines Deleted");
+  };
+
+  const exportPDF = async () => {
+    const input =
+      document.getElementById(
+        "medicine-reminders"
+      );
+
+    const canvas =
+      await html2canvas(input);
+
+    const imgData =
+      canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF();
+
+    pdf.addImage(
+      imgData,
+      "PNG",
+      0,
+      0,
+      210,
+      297
+    );
+
+    pdf.save("medicines.pdf");
+
+    toast.success("PDF Exported");
   };
 
   const filteredMedicines = medicines
@@ -136,8 +180,23 @@ function Reminders() {
             100
         );
 
+  const currentHour =
+    new Date().getHours();
+
+  const greeting =
+    currentHour < 12
+      ? "Good Morning ☀️"
+      : currentHour < 18
+      ? "Good Afternoon 🌤️"
+      : "Good Evening 🌙";
+
   return (
-    <div className="min-h-screen px-6 py-10">
+    <div
+      id="medicine-reminders"
+      className="min-h-screen px-6 py-10"
+    >
+      {showConfetti && <Confetti />}
+
       {/* HEADER */}
 
       <div className="flex flex-col xl:flex-row justify-between gap-6 mb-10">
@@ -146,18 +205,33 @@ function Reminders() {
             Medicine Reminders
           </h1>
 
-          <p className="text-gray-300 mt-3 text-lg">
-            Track and manage your medicine
-            schedule beautifully.
+          <h2 className="text-2xl text-gray-300 mt-3">
+            {greeting}
+          </h2>
+
+          <p className="text-gray-400 mt-2 text-lg">
+            Stay healthy and never miss your
+            medicines.
           </p>
         </div>
 
-        <button
-          onClick={clearAllMedicines}
-          className="bg-red-500 hover:bg-red-600 transition px-8 py-4 rounded-2xl font-bold h-fit"
-        >
-          Clear All
-        </button>
+        <div className="flex flex-wrap gap-4">
+          <button
+            onClick={exportPDF}
+            className="bg-cyan-500 hover:bg-cyan-600 transition px-6 py-4 rounded-2xl font-bold flex items-center gap-3"
+          >
+            <FaFilePdf />
+
+            Export PDF
+          </button>
+
+          <button
+            onClick={clearAllMedicines}
+            className="bg-red-500 hover:bg-red-600 transition px-6 py-4 rounded-2xl font-bold"
+          >
+            Clear All
+          </button>
+        </div>
       </div>
 
       {/* SEARCH & FILTER */}
@@ -255,8 +329,8 @@ function Reminders() {
           </h2>
 
           <p className="text-gray-400 mt-4 text-lg">
-            Start by adding your first medicine
-            reminder.
+            Add medicines to start tracking your
+            health.
           </p>
         </div>
       ) : (
@@ -266,7 +340,7 @@ function Reminders() {
               key={medicine.id}
               initial={{
                 opacity: 0,
-                y: 50,
+                y: 40,
               }}
               animate={{
                 opacity: 1,
