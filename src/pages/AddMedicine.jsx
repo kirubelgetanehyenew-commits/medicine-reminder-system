@@ -5,6 +5,8 @@ import Sidebar from "../components/Sidebar";
 function AddMedicine() {
   const [name, setName] = useState("");
   const [time, setTime] = useState("");
+  const [date, setDate] = useState("");
+  const [frequency, setFrequency] = useState("Daily");
   const [category, setCategory] = useState("Tablet");
   const [dosage, setDosage] = useState("");
   const [notes, setNotes] = useState("");
@@ -13,34 +15,41 @@ function AddMedicine() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!name || !time) {
-      alert("Please fill required fields");
+    if (!name || !time || !date) {
+      alert("Please fill all required fields");
       return;
     }
 
     const medicines =
       JSON.parse(localStorage.getItem("medicines")) || [];
 
-    medicines.push({
+    const newMedicine = {
       id: Date.now(),
       name,
       time,
+      date,
+      frequency,
       category,
       dosage,
       notes,
       priority,
       completed: false,
-    });
+      createdAt: new Date().toISOString(),
+    };
+
+    medicines.push(newMedicine);
 
     localStorage.setItem(
       "medicines",
       JSON.stringify(medicines)
     );
 
-    alert("Medicine Added Successfully");
+    alert("Medicine Added Successfully!");
 
     setName("");
     setTime("");
+    setDate("");
+    setFrequency("Daily");
     setCategory("Tablet");
     setDosage("");
     setNotes("");
@@ -54,14 +63,39 @@ function AddMedicine() {
       <div className="flex-1 p-8">
         <Navbar />
 
-        <div className="glass max-w-3xl mx-auto mt-8 p-8 rounded-3xl">
-          <h1 className="text-4xl font-bold mb-8">
-            Add Medicine
-          </h1>
+        <div className="max-w-5xl mx-auto add-medicine-card">
+          <div className="mb-8">
+            <h1 className="add-title">
+              Add Medicine
+            </h1>
+
+            <p className="add-subtitle">
+              Schedule and manage your medications
+              easily.
+            </p>
+          </div>
+
+          <div className="feature-row">
+            <div className="feature-box">
+              💊 Medicine
+            </div>
+
+            <div className="feature-box">
+              ⏰ Schedule
+            </div>
+
+            <div className="feature-box">
+              📅 Calendar
+            </div>
+
+            <div className="feature-box">
+              🔔 Reminder
+            </div>
+          </div>
 
           <form
             onSubmit={handleSubmit}
-            className="space-y-5"
+            className="add-form"
           >
             <input
               type="text"
@@ -70,7 +104,7 @@ function AddMedicine() {
               onChange={(e) =>
                 setName(e.target.value)
               }
-              className="w-full p-4 rounded-xl text-black"
+              className="modern-input"
             />
 
             <input
@@ -79,7 +113,16 @@ function AddMedicine() {
               onChange={(e) =>
                 setTime(e.target.value)
               }
-              className="w-full p-4 rounded-xl text-black"
+              className="modern-input"
+            />
+
+            <input
+              type="date"
+              value={date}
+              onChange={(e) =>
+                setDate(e.target.value)
+              }
+              className="modern-input"
             />
 
             <input
@@ -89,15 +132,27 @@ function AddMedicine() {
               onChange={(e) =>
                 setDosage(e.target.value)
               }
-              className="w-full p-4 rounded-xl text-black"
+              className="modern-input"
             />
+
+            <select
+              value={frequency}
+              onChange={(e) =>
+                setFrequency(e.target.value)
+              }
+              className="modern-input"
+            >
+              <option>Daily</option>
+              <option>Weekly</option>
+              <option>Monthly</option>
+            </select>
 
             <select
               value={category}
               onChange={(e) =>
                 setCategory(e.target.value)
               }
-              className="w-full p-4 rounded-xl text-black"
+              className="modern-input"
             >
               <option>Tablet</option>
               <option>Capsule</option>
@@ -110,28 +165,30 @@ function AddMedicine() {
               onChange={(e) =>
                 setPriority(e.target.value)
               }
-              className="w-full p-4 rounded-xl text-black"
+              className="modern-input"
             >
               <option>High</option>
               <option>Medium</option>
               <option>Low</option>
             </select>
 
+            <div></div>
+
             <textarea
-              rows="4"
-              placeholder="Notes"
+              rows="5"
+              placeholder="Medicine Notes..."
               value={notes}
               onChange={(e) =>
                 setNotes(e.target.value)
               }
-              className="w-full p-4 rounded-xl text-black"
+              className="modern-input full-width"
             />
 
             <button
               type="submit"
-              className="w-full bg-purple-600 p-4 rounded-xl"
+              className="add-btn full-width"
             >
-              Add Medicine
+              ➕ Add Medicine
             </button>
           </form>
         </div>

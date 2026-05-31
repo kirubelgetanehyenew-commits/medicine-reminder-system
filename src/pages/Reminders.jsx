@@ -1,9 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 
 function Reminders() {
-  const [medicines, setMedicines] = useState([]);
+  const [medicines, setMedicines] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("medicines")) || [];
+    } catch {
+      return [];
+    }
+  });
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
 
@@ -11,14 +17,7 @@ function Reminders() {
   const [editName, setEditName] = useState("");
   const [editTime, setEditTime] = useState("");
 
-  useEffect(() => {
-    const saved =
-      JSON.parse(
-        localStorage.getItem("medicines")
-      ) || [];
-
-    setMedicines(saved);
-  }, []);
+  // medicines initialized from localStorage to avoid synchronous setState in effect
 
   const saveToStorage = (data) => {
     localStorage.setItem(
