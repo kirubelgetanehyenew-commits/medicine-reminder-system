@@ -6,23 +6,18 @@ function Clock() {
   );
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setTime(new Date());
     }, 1000);
 
-    return () =>
-      clearInterval(interval);
+    return () => clearInterval(timer);
   }, []);
 
   return (
-    <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[30px] p-6 text-center">
-      <h2 className="text-gray-300">
-        Current Time
-      </h2>
-
-      <h1 className="text-5xl font-black mt-3">
+    <div className="glass px-6 py-4">
+      <h2 className="text-2xl font-bold">
         {time.toLocaleTimeString()}
-      </h1>
+      </h2>
     </div>
   );
 }

@@ -1,21 +1,28 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import Navbar from "./components/Navbar";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
 
 import Home from "./pages/Home";
-import AddMedicine from "./pages/AddMedicine";
-import Reminders from "./pages/Reminders";
 import Dashboard from "./pages/Dashboard";
+import Reminders from "./pages/Reminders";
+import AddMedicine from "./pages/AddMedicine";
+import CalendarPage from "./pages/CalendarPage";
 
 function App() {
   return (
     <BrowserRouter>
-      <Navbar />
-
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={<Home />}
+        />
 
-        <Route path="/add" element={<AddMedicine />} />
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
 
         <Route
           path="/reminders"
@@ -23,8 +30,13 @@ function App() {
         />
 
         <Route
-          path="/dashboard"
-          element={<Dashboard />}
+          path="/add"
+          element={<AddMedicine />}
+        />
+
+        <Route
+          path="/calendar"
+          element={<CalendarPage />}
         />
       </Routes>
     </BrowserRouter>

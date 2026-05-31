@@ -19,6 +19,7 @@
     "react": "^19.2.6",
     "react-calendar": "^6.0.1",
     "react-chartjs-2": "^5.3.1",
+    "react-circular-progressbar": "^2.2.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.2.6",
     "react-hot-toast": "^2.6.0",
@@ -26,6 +27,7 @@
     "react-modal": "^3.16.3",
     "react-player": "^3.4.0",
     "react-router-dom": "^7.16.0",
+    "recharts": "^3.8.1",
     "uuid": "^14.0.0"
   },
   "devDependencies": {

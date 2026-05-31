@@ -1,106 +1,141 @@
 import { useState } from "react";
-import toast from "react-hot-toast";
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
 
 function AddMedicine() {
-  const [formData, setFormData] = useState({
-    name: "",
-    dosage: "",
-    time: "",
-    notes: "",
-  });
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const [name, setName] = useState("");
+  const [time, setTime] = useState("");
+  const [category, setCategory] = useState("Tablet");
+  const [dosage, setDosage] = useState("");
+  const [notes, setNotes] = useState("");
+  const [priority, setPriority] = useState("Medium");
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const medicine = {
-      id: Date.now(),
-      ...formData,
-      completed: false,
-    };
+    if (!name || !time) {
+      alert("Please fill required fields");
+      return;
+    }
 
-    const existingMedicines =
+    const medicines =
       JSON.parse(localStorage.getItem("medicines")) || [];
 
-    existingMedicines.push(medicine);
+    medicines.push({
+      id: Date.now(),
+      name,
+      time,
+      category,
+      dosage,
+      notes,
+      priority,
+      completed: false,
+    });
 
     localStorage.setItem(
       "medicines",
-      JSON.stringify(existingMedicines)
+      JSON.stringify(medicines)
     );
 
-    toast.success("Medicine Added Successfully");
+    alert("Medicine Added Successfully");
 
-    setFormData({
-      name: "",
-      dosage: "",
-      time: "",
-      notes: "",
-    });
+    setName("");
+    setTime("");
+    setCategory("Tablet");
+    setDosage("");
+    setNotes("");
+    setPriority("Medium");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-5 py-10">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-lg backdrop-blur-xl bg-white/10 border border-white/10 rounded-[30px] p-10 shadow-2xl"
-      >
-        <h1 className="text-4xl font-black mb-8 text-center">
-          Add Medicine
-        </h1>
+    <div className="flex">
+      <Sidebar />
 
-        <div className="space-y-5">
-          <input
-            type="text"
-            name="name"
-            placeholder="Medicine Name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none"
-            required
-          />
+      <div className="flex-1 p-8">
+        <Navbar />
 
-          <input
-            type="text"
-            name="dosage"
-            placeholder="Dosage (e.g. 2 pills)"
-            value={formData.dosage}
-            onChange={handleChange}
-            className="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none"
-            required
-          />
+        <div className="glass max-w-3xl mx-auto mt-8 p-8 rounded-3xl">
+          <h1 className="text-4xl font-bold mb-8">
+            Add Medicine
+          </h1>
 
-          <input
-            type="time"
-            name="time"
-            value={formData.time}
-            onChange={handleChange}
-            className="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none"
-            required
-          />
-
-          <textarea
-            name="notes"
-            placeholder="Extra Notes"
-            value={formData.notes}
-            onChange={handleChange}
-            className="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none h-32 resize-none"
-          />
-
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-pink-500 to-violet-500 p-4 rounded-2xl font-bold text-lg hover:scale-[1.02] transition"
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
           >
-            Save Reminder
-          </button>
+            <input
+              type="text"
+              placeholder="Medicine Name"
+              value={name}
+              onChange={(e) =>
+                setName(e.target.value)
+              }
+              className="w-full p-4 rounded-xl text-black"
+            />
+
+            <input
+              type="time"
+              value={time}
+              onChange={(e) =>
+                setTime(e.target.value)
+              }
+              className="w-full p-4 rounded-xl text-black"
+            />
+
+            <input
+              type="text"
+              placeholder="Dosage (500mg)"
+              value={dosage}
+              onChange={(e) =>
+                setDosage(e.target.value)
+              }
+              className="w-full p-4 rounded-xl text-black"
+            />
+
+            <select
+              value={category}
+              onChange={(e) =>
+                setCategory(e.target.value)
+              }
+              className="w-full p-4 rounded-xl text-black"
+            >
+              <option>Tablet</option>
+              <option>Capsule</option>
+              <option>Syrup</option>
+              <option>Injection</option>
+            </select>
+
+            <select
+              value={priority}
+              onChange={(e) =>
+                setPriority(e.target.value)
+              }
+              className="w-full p-4 rounded-xl text-black"
+            >
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+
+            <textarea
+              rows="4"
+              placeholder="Notes"
+              value={notes}
+              onChange={(e) =>
+                setNotes(e.target.value)
+              }
+              className="w-full p-4 rounded-xl text-black"
+            />
+
+            <button
+              type="submit"
+              className="w-full bg-purple-600 p-4 rounded-xl"
+            >
+              Add Medicine
+            </button>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

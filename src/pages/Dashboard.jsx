@@ -1,104 +1,166 @@
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
+import AnalyticsChart from "../components/AnalyticsChart";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
-import { Doughnut } from "react-chartjs-2";
-
-import Calendar from "react-calendar";
-
-import "react-calendar/dist/Calendar.css";
-
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend
-);
-
 function Dashboard() {
-  const [medicines, setMedicines] = useState([]);
+  const [medicines, setMedicines] =
+    useState([]);
 
   useEffect(() => {
-    const data =
-      JSON.parse(localStorage.getItem("medicines")) || [];
+    const saved =
+      JSON.parse(
+        localStorage.getItem(
+          "medicines"
+        )
+      ) || [];
 
-    setMedicines(data);
+    setMedicines(saved);
   }, []);
 
-  const completed = medicines.filter(
-    (medicine) => medicine.completed
-  ).length;
+  const total =
+    medicines.length;
 
-  const pending = medicines.length - completed;
+  const completed =
+    medicines.filter(
+      (m) => m.completed
+    ).length;
 
-  const chartData = {
-    labels: ["Completed", "Pending"],
+  const pending =
+    total - completed;
 
-    datasets: [
-      {
-        data: [completed, pending],
-
-        backgroundColor: [
-          "#22c55e",
-          "#ef4444",
-        ],
-      },
-    ],
-  };
+  const percentage =
+    total === 0
+      ? 0
+      : Math.round(
+          (completed / total) *
+            100
+        );
 
   return (
-    <div className="min-h-screen px-6 py-10">
-      <h1 className="text-5xl font-black mb-10">
-        Dashboard
-      </h1>
+    <div className="flex">
+      <Sidebar />
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[30px] p-8">
-          <h2 className="text-2xl font-bold mb-6">
-            Statistics
-          </h2>
+      <div className="flex-1 p-8">
+        <Navbar />
 
-          <div className="space-y-4 text-lg">
-            <p>
-              Total Medicines:
-              <span className="font-black ml-2">
-                {medicines.length}
-              </span>
-            </p>
+        <div className="mb-10">
+          <h1 className="text-5xl font-black">
+            Dashboard
+          </h1>
 
-            <p>
-              Completed:
-              <span className="font-black ml-2 text-green-400">
-                {completed}
-              </span>
-            </p>
+          <p className="text-gray-400">
+            Welcome Back 👋
+          </p>
+        </div>
 
-            <p>
-              Pending:
-              <span className="font-black ml-2 text-red-400">
-                {pending}
-              </span>
-            </p>
+        <div className="grid md:grid-cols-4 gap-6">
+          <div className="glass p-6 rounded-3xl">
+            <h2>Total</h2>
+
+            <h1 className="text-5xl font-bold">
+              {total}
+            </h1>
+          </div>
+
+          <div className="glass p-6 rounded-3xl">
+            <h2>Completed</h2>
+
+            <h1 className="text-5xl font-bold">
+              {completed}
+            </h1>
+          </div>
+
+          <div className="glass p-6 rounded-3xl">
+            <h2>Pending</h2>
+
+            <h1 className="text-5xl font-bold">
+              {pending}
+            </h1>
+          </div>
+
+          <div className="glass p-6 rounded-3xl">
+            <h2>Success</h2>
+
+            <h1 className="text-5xl font-bold">
+              {percentage}%
+            </h1>
           </div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[30px] p-8 flex justify-center">
-          <div className="w-72">
-            <Doughnut data={chartData} />
-          </div>
-        </div>
-
-        <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[30px] p-8">
-          <h2 className="text-2xl font-bold mb-6">
-            Schedule Calendar
+        <div className="mt-10 glass p-8 rounded-3xl">
+          <h2 className="text-3xl font-bold mb-6">
+            Weekly Analytics
           </h2>
 
-          <Calendar />
+          <AnalyticsChart />
         </div>
+
+        <div className="mt-10 glass p-8 rounded-3xl">
+          <h2 className="text-3xl font-bold mb-6">
+            Recent Medicines
+          </h2>
+
+          {medicines
+            .slice(-5)
+            .reverse()
+            .map((medicine) => (
+              <div
+                key={medicine.id}
+                className="
+                  flex
+                  justify-between
+                  items-center
+                  border-b
+                  border-white/10
+                  py-4
+                "
+              >
+                <div>
+                  <h3 className="text-xl">
+                    {medicine.name}
+                  </h3>
+
+                  <p>
+                    {medicine.time}
+                  </p>
+                </div>
+
+                <span
+                  className={`px-3 py-1 rounded-full ${
+                    medicine.completed
+                      ? "bg-green-500"
+                      : "bg-red-500"
+                  }`}
+                >
+                  {medicine.completed
+                    ? "Done"
+                    : "Pending"}
+                </span>
+              </div>
+            ))}
+        </div>
+
+        <Link
+          to="/add"
+          className="
+            fixed
+            bottom-8
+            right-8
+            bg-purple-600
+            w-16
+            h-16
+            rounded-full
+            flex
+            items-center
+            justify-center
+            text-4xl
+            shadow-lg
+          "
+        >
+          +
+        </Link>
       </div>
     </div>
   );
