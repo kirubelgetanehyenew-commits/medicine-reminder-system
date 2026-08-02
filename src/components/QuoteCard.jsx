@@ -1,9 +1,9 @@
 const quotes = [
-  { text: "Health is wealth.",           emoji: "💜" },
-  { text: "Never skip your medicine.",   emoji: "💊" },
-  { text: "Stay strong and healthy.",    emoji: "🚀" },
-  { text: "Your health matters.",        emoji: "✨" },
-  { text: "Consistency is the key.",     emoji: "🔑" },
+  "Consistency in medication is the foundation of good health.",
+  "Small daily habits build long-term wellness.",
+  "Your health is your most valuable asset.",
+  "A dose of discipline keeps illness at bay.",
+  "Stay consistent — your future self will thank you.",
 ];
 
 function QuoteCard() {
@@ -12,36 +12,48 @@ function QuoteCard() {
   return (
     <div
       style={{
-        background: "linear-gradient(135deg, rgba(20,184,166,0.18), rgba(99,102,241,0.18))",
-        border: "1px solid rgba(20,184,166,0.2)",
-        borderRadius: "var(--radius-lg)",
-        padding: "24px 28px",
+        background: "var(--blue-muted)",
+        border: "1px solid var(--blue-light)",
+        borderRadius: "var(--r-lg)",
+        padding: "18px 22px",
         display: "flex",
-        alignItems: "center",
-        gap: 20,
+        alignItems: "flex-start",
+        gap: 14,
       }}
     >
-      <div
+      <span
         style={{
-          fontSize: "2.2rem",
-          width: 56,
-          height: 56,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "rgba(0,0,0,0.25)",
-          borderRadius: "var(--radius-sm)",
+          fontSize: "1.1rem",
+          marginTop: 2,
           flexShrink: 0,
+          opacity: 0.7,
         }}
       >
-        {q.emoji}
-      </div>
+        💡
+      </span>
       <div>
-        <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 6px" }}>
-          Daily Motivation
+        <p
+          style={{
+            fontSize: "0.7rem",
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.07em",
+            color: "var(--blue)",
+            margin: "0 0 5px",
+          }}
+        >
+          Daily Tip
         </p>
-        <p style={{ fontSize: "1.05rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
-          {q.text}
+        <p
+          style={{
+            fontSize: "0.88rem",
+            fontWeight: 500,
+            color: "var(--text-heading)",
+            margin: 0,
+            lineHeight: 1.55,
+          }}
+        >
+          {q}
         </p>
       </div>
     </div>

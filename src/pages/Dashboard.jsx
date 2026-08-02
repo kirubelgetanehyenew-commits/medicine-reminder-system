@@ -4,143 +4,149 @@ import Sidebar from "../components/Sidebar";
 import Navbar  from "../components/Navbar";
 import AnalyticsChart from "../components/AnalyticsChart";
 import { medicinesAPI, getUser, clearSession } from "../services/api";
-import { FaPills, FaCheckCircle, FaClock, FaPercent, FaSignOutAlt } from "react-icons/fa";
+import { FaPills, FaCheckCircle, FaClock, FaTrophy } from "react-icons/fa";
+
+const col = (bg, border) => ({ background: bg, border: `1px solid ${border}` });
 
 function Dashboard() {
   const navigate = useNavigate();
   const user = getUser();
-
   const [medicines, setMedicines] = useState([]);
   const [stats,     setStats]     = useState({ total: 0, completed: 0, pending: 0, successRate: 0 });
   const [loading,   setLoading]   = useState(true);
   const [error,     setError]     = useState("");
 
   useEffect(() => {
-    const load = async () => {
+    (async () => {
       try {
-        const [meds, s] = await Promise.all([
-          medicinesAPI.getAll(),
-          medicinesAPI.getStats(),
-        ]);
-        setMedicines(meds);
-        setStats(s);
-      } catch {
-        setError("Failed to load data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+        const [meds, s] = await Promise.all([medicinesAPI.getAll(), medicinesAPI.getStats()]);
+        setMedicines(meds); setStats(s);
+      } catch { setError("Failed to load data. Is the backend running?"); }
+      finally  { setLoading(false); }
+    })();
   }, []);
 
-  const handleLogout = () => {
-    clearSession();
-    navigate("/login");
-  };
-
-  const statCards = [
-    { label: "Total",     value: stats.total,       icon: <FaPills />,       color: "#6366f1", bg: "rgba(99,102,241,0.12)",  border: "rgba(99,102,241,0.2)"  },
-    { label: "Completed", value: stats.completed,   icon: <FaCheckCircle />, color: "#22c55e", bg: "rgba(34,197,94,0.12)",   border: "rgba(34,197,94,0.2)"   },
-    { label: "Pending",   value: stats.pending,     icon: <FaClock />,       color: "#f59e0b", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.2)"  },
-    { label: "Success",   value: `${stats.successRate}%`, icon: <FaPercent />, color: "#14b8a6", bg: "rgba(20,184,166,0.12)", border: "rgba(20,184,166,0.2)"  },
+  const cards = [
+    { label: "Total Medicines", value: stats.total,       icon: <FaPills />,       ...col("var(--bg-surface)",          "var(--border)") },
+    { label: "Completed",       value: stats.completed,   icon: <FaCheckCircle />, ...col("var(--green-bg)",             "var(--green-border)"),  valueColor: "var(--green)" },
+    { label: "Pending",         value: stats.pending,     icon: <FaClock />,       ...col("var(--amber-bg)",             "var(--amber-border)"),  valueColor: "var(--amber)" },
+    { label: "Success Rate",    value: `${stats.successRate}%`, icon: <FaTrophy />, ...col("var(--blue-muted)",          "var(--blue-light)"),    valueColor: "var(--blue)"  },
   ];
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg-page)" }}>
       <Sidebar />
 
-      <div style={{ flex: 1, padding: "28px 32px", overflow: "auto" }}>
+      <div style={{ flex: 1, padding: "28px 32px", overflow: "auto", minWidth: 0 }}>
         <Navbar />
 
-        {/* Page Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
-          <div>
-            <h1 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: "-0.03em", margin: 0 }}>
-              Dashboard
-            </h1>
-            <p style={{ color: "var(--text-muted)", marginTop: 6, fontSize: "0.95rem" }}>
-              Welcome back, <strong>{user?.name || "there"}</strong> 👋
-            </p>
-          </div>
-          <button
-            onClick={handleLogout}
-            style={{
-              display: "flex", alignItems: "center", gap: 7,
-              background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)",
-              color: "#f87171", borderRadius: "var(--radius-sm)", padding: "8px 14px",
-              cursor: "pointer", fontWeight: 600, fontSize: "0.82rem",
-            }}
-          >
-            <FaSignOutAlt /> Logout
-          </button>
+        {/* Header */}
+        <div style={{ marginBottom: 28 }}>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-heading)", margin: 0 }}>
+            Dashboard
+          </h1>
+          <p style={{ color: "var(--text-muted)", marginTop: 4, fontSize: "0.88rem" }}>
+            Good to see you, <strong style={{ color: "var(--text-heading)" }}>{user?.name || "there"}</strong>. Here's your health overview.
+          </p>
         </div>
 
         {error && (
-          <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: "var(--radius-sm)", padding: "12px 16px", marginBottom: 24, color: "#f87171", fontSize: "0.88rem" }}>
-            {error}
+          <div style={{ background: "var(--red-bg)", border: "1px solid var(--red-border)", borderRadius: "var(--r-md)", padding: "12px 16px", marginBottom: 24, color: "var(--red)", fontSize: "0.85rem" }}>
+            ⚠️ {error}
           </div>
         )}
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "var(--text-muted)" }}>Loading…</div>
+          <div style={{ textAlign: "center", padding: "80px 0", color: "var(--text-muted)", fontSize: "0.9rem" }}>
+            Loading your data…
+          </div>
         ) : (
           <>
-            {/* Stats */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 28 }}>
-              {statCards.map(({ label, value, icon, color, bg, border }) => (
-                <div key={label} className="card-hover" style={{ background: bg, border: `1px solid ${border}`, borderRadius: "var(--radius-lg)", padding: "22px 20px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <div>
-                      <p style={{ color: "var(--text-muted)", fontSize: "0.78rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>{label}</p>
-                      <p style={{ fontSize: "2.5rem", fontWeight: 900, letterSpacing: "-0.04em", margin: "8px 0 0" }}>{value}</p>
-                    </div>
-                    <div style={{ color, fontSize: "1.3rem", opacity: 0.9 }}>{icon}</div>
+            {/* Stat Cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(175px, 1fr))", gap: 14, marginBottom: 24 }}>
+              {cards.map(({ label, value, icon, background, border, valueColor }) => (
+                <div
+                  key={label}
+                  className="card-hover"
+                  style={{ background, border, borderRadius: "var(--r-lg)", padding: "18px 20px", boxShadow: "var(--shadow-xs)" }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <p style={{ fontSize: "0.73rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", margin: 0 }}>
+                      {label}
+                    </p>
+                    <div style={{ color: valueColor || "var(--text-muted)", fontSize: "0.9rem", opacity: 0.8 }}>{icon}</div>
                   </div>
+                  <p style={{ fontSize: "2rem", fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: valueColor || "var(--text-heading)" }}>
+                    {value}
+                  </p>
                 </div>
               ))}
             </div>
 
             {/* Progress */}
-            <div className="glass" style={{ padding: "20px 24px", marginBottom: 28 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>Overall Progress</span>
-                <span style={{ color: "var(--accent-light)", fontWeight: 700 }}>{stats.successRate}%</span>
+            <div className="glass" style={{ padding: "18px 22px", marginBottom: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <div>
+                  <p style={{ fontWeight: 600, fontSize: "0.88rem", color: "var(--text-heading)", margin: 0 }}>Overall Completion</p>
+                  <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", margin: "3px 0 0" }}>
+                    {stats.completed} of {stats.total} medicines completed
+                  </p>
+                </div>
+                <span style={{ fontSize: "1.4rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--blue)" }}>
+                  {stats.successRate}%
+                </span>
               </div>
               <div className="progress-track">
                 <div className="progress-fill" style={{ width: `${stats.successRate}%` }} />
               </div>
             </div>
 
-            {/* Chart */}
-            <div className="glass" style={{ padding: "24px 28px", marginBottom: 28 }}>
-              <h2 style={{ fontSize: "1.2rem", fontWeight: 700, margin: "0 0 20px" }}>Weekly Analytics</h2>
-              <AnalyticsChart />
-            </div>
-
-            {/* Recent Medicines */}
-            <div className="glass" style={{ padding: "24px 28px" }}>
-              <h2 style={{ fontSize: "1.2rem", fontWeight: 700, margin: "0 0 20px" }}>Recent Medicines</h2>
-
-              {medicines.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "32px 0", color: "var(--text-muted)" }}>
-                  <FaPills size={32} style={{ marginBottom: 12, opacity: 0.4 }} />
-                  <p style={{ margin: 0 }}>No medicines added yet.</p>
+            {/* Two-column lower grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
+              {/* Chart */}
+              <div className="glass" style={{ padding: "22px 24px" }}>
+                <div className="section-header">
+                  <p className="section-title">Weekly Analytics</p>
+                  <span className="badge badge-blue">This week</span>
                 </div>
-              ) : (
-                medicines.slice(0, 5).map((med) => (
-                  <div key={med.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0", borderBottom: "1px solid var(--border)" }}>
-                    <div>
-                      <p style={{ fontWeight: 600, margin: 0, fontSize: "0.95rem" }}>{med.name}</p>
-                      <p style={{ color: "var(--text-muted)", margin: "3px 0 0", fontSize: "0.82rem" }}>
-                        ⏰ {med.time} &nbsp;·&nbsp; 💊 {med.category}
-                      </p>
-                    </div>
-                    <span className={`badge ${med.completed ? "badge-success" : "badge-danger"}`}>
-                      {med.completed ? "Done" : "Pending"}
-                    </span>
+                <AnalyticsChart />
+              </div>
+
+              {/* Recent */}
+              <div className="glass" style={{ padding: "22px 24px" }}>
+                <div className="section-header">
+                  <p className="section-title">Recent Medicines</p>
+                  <Link to="/reminders" style={{ fontSize: "0.78rem", color: "var(--blue)", fontWeight: 600, textDecoration: "none" }}>
+                    View all →
+                  </Link>
+                </div>
+
+                {medicines.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "28px 0", color: "var(--text-muted)" }}>
+                    <FaPills size={28} style={{ marginBottom: 10, opacity: 0.3 }} />
+                    <p style={{ margin: 0, fontSize: "0.85rem" }}>No medicines yet.</p>
+                    <Link to="/add" style={{ display: "inline-block", marginTop: 12, fontSize: "0.82rem", color: "var(--blue)", fontWeight: 600, textDecoration: "none" }}>
+                      + Add your first medicine
+                    </Link>
                   </div>
-                ))
-              )}
+                ) : (
+                  medicines.slice(0, 5).map((med) => (
+                    <div key={med.id} className="table-row">
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontWeight: 600, fontSize: "0.88rem", color: "var(--text-heading)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {med.name}
+                        </p>
+                        <p style={{ color: "var(--text-muted)", margin: "2px 0 0", fontSize: "0.75rem" }}>
+                          {med.time} · {med.category}
+                        </p>
+                      </div>
+                      <span className={`badge ${med.completed ? "badge-success" : "badge-danger"}`}>
+                        {med.completed ? "Done" : "Pending"}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </>
         )}

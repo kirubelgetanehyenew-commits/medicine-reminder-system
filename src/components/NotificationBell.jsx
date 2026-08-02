@@ -1,10 +1,10 @@
-import { FaBell } from "react-icons/fa";
+import { FaBell, FaTimes } from "react-icons/fa";
 import { useState } from "react";
 
 const notifications = [
-  { id: 1, text: "Vitamin D", time: "8:00 AM"  },
-  { id: 2, text: "Paracetamol", time: "1:00 PM" },
-  { id: 3, text: "Calcium",   time: "9:00 PM"  },
+  { id: 1, medicine: "Vitamin D",    time: "8:00 AM",  status: "pending" },
+  { id: 2, medicine: "Paracetamol", time: "1:00 PM",  status: "pending" },
+  { id: 3, medicine: "Calcium",     time: "9:00 PM",  status: "pending" },
 ];
 
 function NotificationBell() {
@@ -14,31 +14,26 @@ function NotificationBell() {
     <div style={{ position: "relative" }}>
       <button
         onClick={() => setOpen(!open)}
+        title="Notifications"
         style={{
           position: "relative",
-          background: open ? "rgba(20,184,166,0.15)" : "rgba(255,255,255,0.06)",
+          width: 34, height: 34,
           border: "1px solid var(--border)",
-          color: open ? "var(--accent-light)" : "var(--text-muted)",
-          borderRadius: "var(--radius-sm)",
-          width: 36,
-          height: 36,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          borderRadius: "var(--r-sm)",
+          background: open ? "var(--blue-muted)" : "var(--bg-subtle)",
+          color: open ? "var(--blue)" : "var(--text-muted)",
+          display: "flex", alignItems: "center", justifyContent: "center",
           cursor: "pointer",
-          transition: "background 0.2s, color 0.2s",
+          transition: "background 0.15s, color 0.15s",
+          flexShrink: 0,
         }}
       >
-        <FaBell size={15} />
+        <FaBell size={13} />
         <span
           style={{
-            position: "absolute",
-            top: 6,
-            right: 6,
-            width: 7,
-            height: 7,
-            background: "#ef4444",
-            borderRadius: "50%",
+            position: "absolute", top: 6, right: 6,
+            width: 6, height: 6,
+            background: "var(--red)", borderRadius: "50%",
             border: "1.5px solid var(--bg-surface)",
           }}
         />
@@ -47,38 +42,72 @@ function NotificationBell() {
       {open && (
         <div
           style={{
-            position: "absolute",
-            right: 0,
-            top: "calc(100% + 8px)",
-            width: 280,
-            background: "var(--bg-card)",
+            position: "absolute", right: 0, top: "calc(100% + 8px)",
+            width: 300,
+            background: "var(--bg-surface)",
             border: "1px solid var(--border)",
-            borderRadius: "var(--radius-md)",
-            boxShadow: "var(--shadow-card)",
-            zIndex: 100,
+            borderRadius: "var(--r-lg)",
+            boxShadow: "var(--shadow-lg)",
+            zIndex: 200,
             overflow: "hidden",
           }}
         >
-          <div style={{ padding: "14px 16px 10px", borderBottom: "1px solid var(--border)" }}>
-            <p style={{ margin: 0, fontWeight: 700, fontSize: "0.88rem" }}>Notifications</p>
+          {/* Header */}
+          <div
+            style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "14px 16px 12px",
+              borderBottom: "1px solid var(--border)",
+            }}
+          >
+            <div>
+              <p style={{ fontWeight: 700, fontSize: "0.88rem", color: "var(--text-heading)", margin: 0 }}>
+                Notifications
+              </p>
+              <p style={{ fontSize: "0.72rem", color: "var(--text-subtle)", margin: "2px 0 0" }}>
+                {notifications.length} upcoming reminders
+              </p>
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 4 }}
+            >
+              <FaTimes size={12} />
+            </button>
           </div>
-          {notifications.map(({ id, text, time }) => (
+
+          {/* List */}
+          {notifications.map(({ id, medicine, time }) => (
             <div
               key={id}
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
+                display: "flex", alignItems: "center", gap: 12,
                 padding: "12px 16px",
                 borderBottom: "1px solid var(--border)",
-                fontSize: "0.85rem",
+                transition: "background 0.15s",
               }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--bg-subtle)"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
             >
-              <span style={{ fontSize: "1.1rem" }}>💊</span>
-              <div>
-                <p style={{ margin: 0, fontWeight: 600, color: "var(--text-primary)" }}>{text}</p>
-                <p style={{ margin: "2px 0 0", color: "var(--text-muted)", fontSize: "0.78rem" }}>{time}</p>
+              <div
+                style={{
+                  width: 34, height: 34, borderRadius: "var(--r-sm)",
+                  background: "var(--blue-muted)", flexShrink: 0,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "1rem",
+                }}
+              >
+                💊
               </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--text-heading)", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {medicine}
+                </p>
+                <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", margin: "2px 0 0" }}>
+                  Scheduled at {time}
+                </p>
+              </div>
+              <span className="badge badge-warning" style={{ flexShrink: 0 }}>Soon</span>
             </div>
           ))}
         </div>

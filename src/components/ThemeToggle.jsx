@@ -2,40 +2,39 @@ import { useEffect, useState } from "react";
 import { FaMoon, FaSun } from "react-icons/fa";
 
 function ThemeToggle() {
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("theme") !== "light";
-  });
+  const [dark, setDark] = useState(() => localStorage.getItem("theme") === "dark");
 
   useEffect(() => {
-    if (darkMode) {
+    if (dark) {
       document.body.classList.add("dark-mode");
       document.body.classList.remove("light-mode");
       localStorage.setItem("theme", "dark");
     } else {
-      document.body.classList.add("light-mode");
       document.body.classList.remove("dark-mode");
+      document.body.classList.add("light-mode");
       localStorage.setItem("theme", "light");
     }
-  }, [darkMode]);
+  }, [dark]);
 
   return (
     <button
-      onClick={() => setDarkMode(!darkMode)}
+      onClick={() => setDark(!dark)}
+      title={dark ? "Switch to light mode" : "Switch to dark mode"}
       style={{
-        background: darkMode ? "rgba(99,102,241,0.15)" : "rgba(245,158,11,0.15)",
-        border: `1px solid ${darkMode ? "rgba(99,102,241,0.3)" : "rgba(245,158,11,0.3)"}`,
-        color: darkMode ? "#a5b4fc" : "#fbbf24",
-        borderRadius: "var(--radius-sm)",
-        width: 36,
-        height: 36,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        width: 34, height: 34,
+        border: "1px solid var(--border)",
+        borderRadius: "var(--r-sm)",
+        background: "var(--bg-subtle)",
+        color: "var(--text-muted)",
+        display: "flex", alignItems: "center", justifyContent: "center",
         cursor: "pointer",
-        transition: "background 0.2s, color 0.2s, border-color 0.2s",
+        transition: "background 0.15s, color 0.15s",
+        flexShrink: 0,
       }}
+      onMouseEnter={e => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-heading)"; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "var(--bg-subtle)"; e.currentTarget.style.color = "var(--text-muted)"; }}
     >
-      {darkMode ? <FaSun size={14} /> : <FaMoon size={14} />}
+      {dark ? <FaSun size={13} /> : <FaMoon size={13} />}
     </button>
   );
 }

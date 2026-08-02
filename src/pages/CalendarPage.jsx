@@ -13,86 +13,102 @@ function CalendarPage() {
   const [loading,   setLoading]   = useState(true);
 
   useEffect(() => {
-    const load = async () => {
+    (async () => {
       try {
-        const [meds, s] = await Promise.all([
-          medicinesAPI.getAll(),
-          medicinesAPI.getStats(),
-        ]);
-        setMedicines(meds);
-        setStats(s);
-      } catch {
-        // silently ignore — page still renders with empty state
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+        const [meds, s] = await Promise.all([medicinesAPI.getAll(), medicinesAPI.getStats()]);
+        setMedicines(meds); setStats(s);
+      } catch {} finally { setLoading(false); }
+    })();
   }, []);
 
-  // Highlight dates that have medicines scheduled
-  const tileClassName = ({ date: tileDate }) => {
-    const tileStr = tileDate.toISOString().split("T")[0];
-    const hasMed  = medicines.some((m) => m.date === tileStr);
-    return hasMed ? "has-medicine" : null;
+  const tileClassName = ({ date: d }) => {
+    const str = d.toISOString().split("T")[0];
+    return medicines.some(m => m.date === str) ? "has-medicine" : null;
   };
 
+  const selectedStr  = date.toISOString().split("T")[0];
+  const selectedMeds = medicines.filter(m => m.date === selectedStr);
+
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg-page)" }}>
       <Sidebar />
 
-      <div style={{ flex: 1, padding: "28px 32px", overflow: "auto" }}>
+      <div style={{ flex: 1, padding: "28px 32px", overflow: "auto", minWidth: 0 }}>
         <Navbar />
 
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: "-0.03em", margin: 0 }}>
-            Medicine Calendar
+        {/* Header */}
+        <div style={{ marginBottom: 24 }}>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-heading)", margin: 0 }}>
+            Calendar
           </h1>
-          <p style={{ color: "var(--text-muted)", marginTop: 6, fontSize: "0.95rem" }}>
-            Browse your medications by date.
+          <p style={{ color: "var(--text-muted)", marginTop: 4, fontSize: "0.88rem" }}>
+            Browse your medications by date. Dots indicate scheduled medicines.
           </p>
         </div>
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "var(--text-muted)" }}>Loading…</div>
+          <div style={{ textAlign: "center", padding: "80px 0", color: "var(--text-muted)", fontSize: "0.9rem" }}>Loading…</div>
         ) : (
           <>
-            {/* Main Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginBottom: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 20, marginBottom: 24, alignItems: "start" }}>
 
               {/* Calendar */}
-              <div className="glass" style={{ padding: "24px" }}>
-                <h2 style={{ fontWeight: 700, fontSize: "0.82rem", margin: "0 0 18px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <div className="glass" style={{ padding: "20px 22px", width: 320 }}>
+                <p style={{ fontSize: "0.73rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-muted)", margin: "0 0 14px" }}>
                   Pick a Date
-                </h2>
+                </p>
                 <Calendar onChange={setDate} value={date} tileClassName={tileClassName} />
               </div>
 
               {/* Day Panel */}
-              <div className="glass" style={{ padding: "24px" }}>
-                <h2 style={{ fontWeight: 700, fontSize: "0.82rem", margin: "0 0 6px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  Selected Date
-                </h2>
-                <p style={{ fontSize: "1.3rem", fontWeight: 700, marginBottom: 20, color: "var(--accent-light)" }}>
-                  {date.toDateString()}
-                </p>
+              <div className="glass" style={{ padding: "20px 22px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                  <div>
+                    <p style={{ fontSize: "0.73rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-muted)", margin: "0 0 4px" }}>
+                      Selected
+                    </p>
+                    <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-heading)", margin: 0 }}>
+                      {date.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                    </p>
+                  </div>
+                  <span className="badge badge-blue">{selectedMeds.length} scheduled</span>
+                </div>
 
-                {/* Medicines scheduled on selected date */}
-                {(() => {
-                  const selected  = date.toISOString().split("T")[0];
-                  const dayMeds   = medicines.filter((m) => m.date === selected);
-                  return dayMeds.length === 0 ? (
-                    <div style={{ textAlign: "center", padding: "24px 0", color: "var(--text-muted)" }}>
-                      <FaPills size={24} style={{ marginBottom: 10, opacity: 0.3 }} />
-                      <p style={{ margin: 0, fontSize: "0.88rem" }}>No medicines on this date.</p>
-                    </div>
+                {selectedMeds.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "28px 0", color: "var(--text-muted)", background: "var(--bg-subtle)", borderRadius: "var(--r-md)" }}>
+                    <FaPills size={24} style={{ marginBottom: 8, opacity: 0.25 }} />
+                    <p style={{ margin: 0, fontSize: "0.85rem" }}>No medicines scheduled on this date.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {selectedMeds.map(med => (
+                      <div key={med.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", background: "var(--bg-subtle)", border: "1px solid var(--border)", borderRadius: "var(--r-md)" }}>
+                        <div>
+                          <p style={{ fontWeight: 600, margin: 0, fontSize: "0.9rem", color: "var(--text-heading)" }}>{med.name}</p>
+                          <p style={{ color: "var(--text-muted)", margin: "2px 0 0", fontSize: "0.76rem" }}>⏰ {med.time} · 💊 {med.category}</p>
+                        </div>
+                        <span className={`badge ${med.completed ? "badge-success" : "badge-danger"}`}>
+                          {med.completed ? "Done" : "Pending"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* All medicines scroll list */}
+                <div style={{ marginTop: 22 }}>
+                  <p style={{ fontSize: "0.73rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-muted)", margin: "0 0 10px" }}>
+                    All Medicines
+                  </p>
+                  {medicines.length === 0 ? (
+                    <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: 0 }}>No medicines added yet.</p>
                   ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      {dayMeds.map((med) => (
-                        <div key={med.id} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 200, overflowY: "auto" }}>
+                      {medicines.map(med => (
+                        <div key={med.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 12px", background: "var(--bg-subtle)", borderRadius: "var(--r-sm)", border: "1px solid var(--border)" }}>
                           <div>
-                            <p style={{ fontWeight: 600, margin: 0, fontSize: "0.92rem" }}>{med.name}</p>
-                            <p style={{ color: "var(--text-muted)", margin: "3px 0 0", fontSize: "0.78rem" }}>⏰ {med.time} · 💊 {med.category}</p>
+                            <p style={{ fontWeight: 600, margin: 0, fontSize: "0.84rem", color: "var(--text-heading)" }}>{med.name}</p>
+                            <p style={{ color: "var(--text-muted)", margin: "1px 0 0", fontSize: "0.72rem" }}>⏰ {med.time}</p>
                           </div>
                           <span className={`badge ${med.completed ? "badge-success" : "badge-danger"}`}>
                             {med.completed ? "Done" : "Pending"}
@@ -100,41 +116,21 @@ function CalendarPage() {
                         </div>
                       ))}
                     </div>
-                  );
-                })()}
-
-                <h3 style={{ fontWeight: 600, fontSize: "0.82rem", color: "var(--text-muted)", margin: "22px 0 12px", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                  All Medicines
-                </h3>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 220, overflowY: "auto" }}>
-                  {medicines.length === 0 ? (
-                    <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", margin: 0 }}>No medicines added yet.</p>
-                  ) : medicines.map((med) => (
-                    <div key={med.id} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div>
-                        <p style={{ fontWeight: 600, margin: 0, fontSize: "0.88rem" }}>{med.name}</p>
-                        <p style={{ color: "var(--text-muted)", margin: "2px 0 0", fontSize: "0.75rem" }}>⏰ {med.time}</p>
-                      </div>
-                      <span className={`badge ${med.completed ? "badge-success" : "badge-danger"}`}>
-                        {med.completed ? "Done" : "Pending"}
-                      </span>
-                    </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Stats Row */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
               {[
-                { label: "Total",     value: stats.total,     color: "rgba(99,102,241,0.12)", border: "rgba(99,102,241,0.2)" },
-                { label: "Completed", value: stats.completed, color: "rgba(34,197,94,0.12)",  border: "rgba(34,197,94,0.2)"  },
-                { label: "Pending",   value: stats.pending,   color: "rgba(245,158,11,0.12)", border: "rgba(245,158,11,0.2)" },
-              ].map(({ label, value, color, border }) => (
-                <div key={label} style={{ background: color, border: `1px solid ${border}`, borderRadius: "var(--radius-lg)", padding: "18px 20px" }}>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.78rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>{label}</p>
-                  <p style={{ fontSize: "2.4rem", fontWeight: 900, letterSpacing: "-0.04em", margin: "6px 0 0" }}>{value}</p>
+                { label: "Total Medicines", value: stats.total,     bg: "var(--bg-surface)",   border: "var(--border)" },
+                { label: "Completed",       value: stats.completed, bg: "var(--green-bg)",      border: "var(--green-border)", vc: "var(--green)" },
+                { label: "Pending",         value: stats.pending,   bg: "var(--amber-bg)",      border: "var(--amber-border)", vc: "var(--amber)" },
+              ].map(({ label, value, bg, border, vc }) => (
+                <div key={label} style={{ background: bg, border: `1px solid ${border}`, borderRadius: "var(--r-lg)", padding: "18px 20px", boxShadow: "var(--shadow-xs)" }}>
+                  <p style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", margin: "0 0 6px" }}>{label}</p>
+                  <p style={{ fontSize: "2rem", fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: vc || "var(--text-heading)" }}>{value}</p>
                 </div>
               ))}
             </div>
