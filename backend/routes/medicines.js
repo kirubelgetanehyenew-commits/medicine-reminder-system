@@ -234,7 +234,6 @@ router.patch("/:id/dose", (req, res) => {
 });
 
 module.exports = router;
-  }
-});
+
 
 module.exports = router;

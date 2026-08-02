@@ -48,10 +48,9 @@ function Navbar() {
         </span>
       </Link>
 
-      {/* Links */}
+      {/* Links — only Home, no Login link */}
       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <Link to="/"      style={linkStyle("/")}>Home</Link>
-        <Link to="/login" style={linkStyle("/login")}>Login</Link>
+        <Link to="/" style={linkStyle("/")}>Home</Link>
       </div>
 
       {/* Actions */}
