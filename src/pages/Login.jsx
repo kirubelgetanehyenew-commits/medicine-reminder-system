@@ -20,7 +20,7 @@ function Login() {
     try {
       const data = await authAPI.login(form);
       saveSession(data);
-      navigate("/dashboard");
+      navigate("/home");
     } catch (err) {
       setError(err.response?.data?.message || "Invalid email or password.");
     } finally {

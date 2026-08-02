@@ -38,7 +38,7 @@ function Register() {
     try {
       const data = await authAPI.register({ name: form.name.trim(), email: form.email.trim(), phone: form.phone.trim(), password: form.password });
       saveSession(data);
-      navigate("/dashboard");
+      navigate("/home");
     } catch (err) {
       setApiError(err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || "Registration failed.");
     } finally { setLoading(false); }

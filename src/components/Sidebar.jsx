@@ -1,12 +1,11 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
-  FaTachometerAlt, FaBell, FaCalendarAlt,
-  FaPlusCircle, FaHistory, FaUser,
-  FaSignOutAlt, FaCog, FaStickyNote,
+  FaHome, FaTachometerAlt, FaBell, FaCalendarAlt,
+  FaPlusCircle, FaHistory, FaUser, FaStickyNote,
 } from "react-icons/fa";
-import { clearSession, getUser } from "../services/api";
 
 const mainNav = [
+  { to: "/home",      icon: <FaHome size={15} />,          label: "Home"         },
   { to: "/dashboard", icon: <FaTachometerAlt size={15} />, label: "Dashboard"    },
   { to: "/reminders", icon: <FaBell size={15} />,          label: "Reminders"    },
   { to: "/calendar",  icon: <FaCalendarAlt size={15} />,   label: "Calendar"     },
@@ -16,7 +15,7 @@ const mainNav = [
 ];
 
 const accountNav = [
-  { to: "/profile",   icon: <FaUser size={14} />,          label: "Profile"      },
+  { to: "/profile", icon: <FaUser size={14} />, label: "Profile" },
 ];
 
 function NavItem({ to, icon, label, pathname }) {
@@ -25,10 +24,8 @@ function NavItem({ to, icon, label, pathname }) {
     <Link
       to={to}
       style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        padding: "9px 12px",
+        display: "flex", alignItems: "center", gap: 10,
+        padding: "10px 14px",
         borderRadius: "var(--r-sm)",
         color: active ? "var(--blue)" : "var(--text-muted)",
         background: active ? "var(--blue-muted)" : "transparent",
@@ -36,6 +33,7 @@ function NavItem({ to, icon, label, pathname }) {
         fontSize: "0.875rem",
         textDecoration: "none",
         transition: "background 0.15s, color 0.15s",
+        borderLeft: active ? "3px solid var(--blue)" : "3px solid transparent",
       }}
       onMouseEnter={e => {
         if (!active) {
@@ -50,8 +48,17 @@ function NavItem({ to, icon, label, pathname }) {
         }
       }}
     >
-      <span style={{ opacity: active ? 1 : 0.7, flexShrink: 0 }}>{icon}</span>
+      <span style={{ opacity: active ? 1 : 0.65, flexShrink: 0 }}>{icon}</span>
       {label}
+      {active && (
+        <span style={{
+          marginLeft: "auto",
+          width: 6, height: 6,
+          borderRadius: "50%",
+          background: "var(--blue)",
+          flexShrink: 0,
+        }} />
+      )}
     </Link>
   );
 }
@@ -61,7 +68,7 @@ function SectionLabel({ children }) {
     <p style={{
       fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase",
       letterSpacing: "0.1em", color: "var(--text-subtle)",
-      padding: "0 12px", margin: "16px 0 4px",
+      padding: "0 14px", margin: "16px 0 6px",
     }}>
       {children}
     </p>
@@ -70,52 +77,47 @@ function SectionLabel({ children }) {
 
 function Sidebar() {
   const { pathname } = useLocation();
-  const navigate     = useNavigate();
-  const user         = getUser();
-
-  const handleLogout = () => { clearSession(); navigate("/login"); };
 
   return (
     <aside style={{
-      width: 240,
-      minHeight: "100vh",
+      width: 248,
       height: "100vh",
-      position: "sticky",
-      top: 0,
       display: "flex",
       flexDirection: "column",
       background: "var(--bg-surface)",
       borderRight: "1px solid var(--border)",
-      flexShrink: 0,
       overflowY: "auto",
+      overflowX: "hidden",
     }}>
 
       {/* ── Brand ── */}
       <div style={{
         display: "flex", alignItems: "center", gap: 10,
-        padding: "22px 20px 18px",
+        padding: "18px 20px 16px",
         borderBottom: "1px solid var(--border)",
+        flexShrink: 0,
       }}>
         <div style={{
-          width: 34, height: 34, borderRadius: "var(--r-sm)",
-          background: "var(--blue)",
+          width: 36, height: 36, borderRadius: "var(--r-sm)",
+          background: "linear-gradient(135deg, var(--blue), #7c3aed)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: "1rem", flexShrink: 0,
+          fontSize: "1.1rem", flexShrink: 0,
+          boxShadow: "0 2px 8px rgba(37,99,235,0.3)",
         }}>
           💊
         </div>
         <div>
-          <p style={{ fontWeight: 800, fontSize: "0.98rem", color: "var(--text-heading)", margin: 0, letterSpacing: "-0.02em" }}>
+          <p style={{ fontWeight: 800, fontSize: "1rem", color: "var(--text-heading)", margin: 0, letterSpacing: "-0.02em" }}>
             MediTrack
           </p>
-          <p style={{ fontSize: "0.65rem", color: "var(--text-subtle)", margin: 0 }}>
+          <p style={{ fontSize: "0.62rem", color: "var(--text-subtle)", margin: 0 }}>
             Pro · v1.0
           </p>
         </div>
       </div>
 
-      {/* ── Main Nav ── */}
-      <div style={{ flex: 1, padding: "8px 12px" }}>
+      {/* ── Navigation ── */}
+      <div style={{ flex: 1, padding: "8px 8px 0" }}>
         <SectionLabel>Main Menu</SectionLabel>
         <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {mainNav.map(item => (
@@ -131,60 +133,25 @@ function Sidebar() {
         </nav>
       </div>
 
-      {/* ── User card + logout ── */}
+      {/* ── Footer ── */}
       <div style={{
-        padding: "12px 14px 16px",
+        padding: "14px 16px",
         borderTop: "1px solid var(--border)",
+        flexShrink: 0,
       }}>
-        <Link
-          to="/profile"
-          style={{
-            display: "flex", alignItems: "center", gap: 10,
-            padding: "10px 10px",
-            borderRadius: "var(--r-md)",
-            border: "1px solid var(--border)",
-            background: "var(--bg-subtle)",
-            textDecoration: "none",
-            marginBottom: 8,
-            transition: "box-shadow 0.15s",
-          }}
-          onMouseEnter={e => e.currentTarget.style.boxShadow = "var(--shadow-sm)"}
-          onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}
-        >
-          <div style={{
-            width: 32, height: 32, borderRadius: "50%",
-            background: "var(--blue)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontWeight: 700, fontSize: "0.85rem", color: "white", flexShrink: 0,
-          }}>
-            {user?.name?.[0]?.toUpperCase() || "U"}
-          </div>
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <p style={{ fontWeight: 600, fontSize: "0.82rem", color: "var(--text-heading)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {user?.name || "User"}
-            </p>
-            <p style={{ fontSize: "0.68rem", color: "var(--text-subtle)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {user?.email || ""}
-            </p>
-          </div>
-          <FaCog size={12} style={{ color: "var(--text-subtle)", flexShrink: 0 }} />
-        </Link>
-
-        <button
-          onClick={handleLogout}
-          style={{
-            width: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-            gap: 7, padding: "8px 12px",
-            border: "1px solid var(--border)", borderRadius: "var(--r-sm)",
-            background: "transparent", color: "var(--text-muted)",
-            cursor: "pointer", fontWeight: 600, fontSize: "0.82rem",
-            fontFamily: "inherit", transition: "background 0.15s, color 0.15s",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = "var(--red-bg)"; e.currentTarget.style.color = "var(--red)"; e.currentTarget.style.borderColor = "var(--red-border)"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.borderColor = "var(--border)"; }}
-        >
-          <FaSignOutAlt size={12} /> Sign Out
-        </button>
+        <div style={{
+          padding: "10px 12px",
+          background: "var(--blue-muted)",
+          border: "1px solid var(--blue-light)",
+          borderRadius: "var(--r-md)",
+        }}>
+          <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "var(--blue)", margin: "0 0 3px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Daily Reminder
+          </p>
+          <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
+            Consistency is the foundation of good health.
+          </p>
+        </div>
       </div>
     </aside>
   );

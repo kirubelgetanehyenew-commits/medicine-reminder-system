@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home            from "./pages/Home";
 import Login           from "./pages/Login";
 import Register        from "./pages/Register";
+import AppHome         from "./pages/AppHome";
 import Dashboard       from "./pages/Dashboard";
 import Reminders       from "./pages/Reminders";
 import AddMedicine     from "./pages/AddMedicine";
@@ -22,13 +23,14 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         {/* Protected */}
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard />    </ProtectedRoute>} />
-        <Route path="/reminders" element={<ProtectedRoute><Reminders />    </ProtectedRoute>} />
-        <Route path="/add"       element={<ProtectedRoute><AddMedicine />  </ProtectedRoute>} />
-        <Route path="/calendar"  element={<ProtectedRoute><CalendarPage /> </ProtectedRoute>} />
-        <Route path="/profile"   element={<ProtectedRoute><Profile />      </ProtectedRoute>} />
+        <Route path="/home"      element={<ProtectedRoute><AppHome />        </ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard />      </ProtectedRoute>} />
+        <Route path="/reminders" element={<ProtectedRoute><Reminders />      </ProtectedRoute>} />
+        <Route path="/add"       element={<ProtectedRoute><AddMedicine />    </ProtectedRoute>} />
+        <Route path="/calendar"  element={<ProtectedRoute><CalendarPage />   </ProtectedRoute>} />
+        <Route path="/profile"   element={<ProtectedRoute><Profile />        </ProtectedRoute>} />
         <Route path="/history"   element={<ProtectedRoute><MedicineHistory /></ProtectedRoute>} />
-        <Route path="/notes"     element={<ProtectedRoute><HealthNotes />  </ProtectedRoute>} />
+        <Route path="/notes"     element={<ProtectedRoute><HealthNotes />    </ProtectedRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
