@@ -1,15 +1,25 @@
-function Countdown({
-  medicineTime,
-}) {
+function Countdown({ medicineTime }) {
   return (
-    <div className="bg-black/20 p-4 rounded-2xl mt-4">
-      <p className="text-gray-400">
-        Upcoming Reminder
-      </p>
-
-      <h3 className="text-2xl font-bold mt-2">
-        ⏳ {medicineTime}
-      </h3>
+    <div
+      style={{
+        background: "rgba(99,102,241,0.1)",
+        border: "1px solid rgba(99,102,241,0.2)",
+        borderRadius: "var(--radius-sm)",
+        padding: "12px 16px",
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+      }}
+    >
+      <span style={{ fontSize: "1.3rem" }}>⏳</span>
+      <div>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.72rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
+          Upcoming Reminder
+        </p>
+        <p style={{ fontWeight: 700, fontSize: "1rem", margin: "3px 0 0", color: "#a5b4fc" }}>
+          {medicineTime}
+        </p>
+      </div>
     </div>
   );
 }

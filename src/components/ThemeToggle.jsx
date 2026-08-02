@@ -21,9 +21,21 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => setDarkMode(!darkMode)}
-      className="btn-primary"
+      style={{
+        background: darkMode ? "rgba(99,102,241,0.15)" : "rgba(245,158,11,0.15)",
+        border: `1px solid ${darkMode ? "rgba(99,102,241,0.3)" : "rgba(245,158,11,0.3)"}`,
+        color: darkMode ? "#a5b4fc" : "#fbbf24",
+        borderRadius: "var(--radius-sm)",
+        width: 36,
+        height: 36,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        transition: "background 0.2s, color 0.2s, border-color 0.2s",
+      }}
     >
-      {darkMode ? <FaSun /> : <FaMoon />}
+      {darkMode ? <FaSun size={14} /> : <FaMoon size={14} />}
     </button>
   );
 }

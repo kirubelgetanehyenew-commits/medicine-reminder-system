@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables
+.env
+backend/.env
+
+# Backend data (persisted medicine/user JSON)
+backend/data/

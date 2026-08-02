@@ -1,34 +1,43 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { FaHome, FaTachometerAlt, FaBell, FaCalendarAlt, FaPlusCircle } from "react-icons/fa";
+
+const navItems = [
+  { to: "/",          icon: <FaHome />,            label: "Home"        },
+  { to: "/dashboard", icon: <FaTachometerAlt />,   label: "Dashboard"   },
+  { to: "/reminders", icon: <FaBell />,             label: "Reminders"   },
+  { to: "/calendar",  icon: <FaCalendarAlt />,      label: "Calendar"    },
+  { to: "/add",       icon: <FaPlusCircle />,        label: "Add Medicine"},
+];
 
 function Sidebar() {
+  const { pathname } = useLocation();
+
   return (
-    <div className="w-64 glass min-h-screen p-6">
-      <h1 className="text-4xl font-black gradient-text mb-10">
-        💊 MediTrack
-      </h1>
-
-      <div className="flex flex-col gap-5 text-lg">
-        <Link to="/">
-          🏠 Home
-        </Link>
-
-        <Link to="/dashboard">
-          📊 Dashboard
-        </Link>
-
-        <Link to="/reminders">
-          ⏰ Reminders
-        </Link>
-
-        <Link to="/calendar">
-          📅 Calendar
-        </Link>
-
-        <Link to="/add">
-          ➕ Add Medicine
-        </Link>
+    <aside className="sidebar">
+      <div className="sidebar-logo">
+        <span style={{ fontSize: "1.5rem" }}>💊</span>
+        <span className="gradient-text">MediTrack</span>
       </div>
-    </div>
+
+      <nav className="sidebar-nav">
+        {navItems.map(({ to, icon, label }) => (
+          <Link
+            key={to}
+            to={to}
+            className={`sidebar-link ${pathname === to ? "active" : ""}`}
+          >
+            <span className="sidebar-link-icon">{icon}</span>
+            {label}
+          </Link>
+        ))}
+      </nav>
+
+      <div style={{ marginTop: "auto", paddingTop: "24px", borderTop: "1px solid var(--border)" }}>
+        <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", textAlign: "center" }}>
+          MediTrack v1.0
+        </p>
+      </div>
+    </aside>
   );
 }
 
