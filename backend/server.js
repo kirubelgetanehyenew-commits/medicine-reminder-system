@@ -13,7 +13,7 @@ if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 const app = express();
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin:      process.env.CLIENT_URL || "http://localhost:5173",
   credentials: true,
 }));
 
@@ -37,7 +37,7 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// ── 404 handler ───────────────────────────────────────────────────────────────
+// ── 404 ───────────────────────────────────────────────────────────────────────
 app.use((_req, res) => {
   res.status(404).json({ message: "Route not found." });
 });
@@ -48,9 +48,13 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ message: "Internal server error." });
 });
 
-// ── start ─────────────────────────────────────────────────────────────────────
+// ── start server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`\n🚀  MediTrack API running on http://localhost:${PORT}`);
-  console.log(`    Health: http://localhost:${PORT}/api/health\n`);
+  console.log(`\n🚀  MediTrack API  →  http://localhost:${PORT}`);
+  console.log(`    Health check  →  http://localhost:${PORT}/api/health\n`);
+
+  // Start the notification scheduler AFTER the server is up
+  const { startScheduler } = require("./scheduler");
+  startScheduler();
 });

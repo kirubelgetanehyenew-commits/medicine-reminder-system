@@ -1,8 +1,9 @@
 const fs   = require("fs");
 const path = require("path");
 
-const MEDICINES_FILE = path.join(__dirname, "data", "medicines.json");
-const USERS_FILE     = path.join(__dirname, "data", "users.json");
+const MEDICINES_FILE    = path.join(__dirname, "data", "medicines.json");
+const USERS_FILE        = path.join(__dirname, "data", "users.json");
+const NOTIF_LOG_FILE    = path.join(__dirname, "data", "notif_log.json");
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -38,8 +39,8 @@ function addMedicine(medicine) {
 }
 
 function updateMedicine(id, userId, updates) {
-  const all     = readFile(MEDICINES_FILE);
-  const index   = all.findIndex((m) => m.id === id && m.userId === userId);
+  const all   = readFile(MEDICINES_FILE);
+  const index = all.findIndex((m) => m.id === id && m.userId === userId);
   if (index === -1) return null;
   all[index] = { ...all[index], ...updates, updatedAt: new Date().toISOString() };
   writeFile(MEDICINES_FILE, all);
@@ -47,8 +48,8 @@ function updateMedicine(id, userId, updates) {
 }
 
 function deleteMedicine(id, userId) {
-  const all     = readFile(MEDICINES_FILE);
-  const index   = all.findIndex((m) => m.id === id && m.userId === userId);
+  const all   = readFile(MEDICINES_FILE);
+  const index = all.findIndex((m) => m.id === id && m.userId === userId);
   if (index === -1) return false;
   all.splice(index, 1);
   writeFile(MEDICINES_FILE, all);
@@ -76,6 +77,27 @@ function createUser(user) {
   return user;
 }
 
+// ── notification log (prevent duplicate sends) ────────────────────────────────
+// Key format: "medicineId::YYYY-MM-DD"
+
+function wasNotified(medicineId, dateStr) {
+  const log = readFile(NOTIF_LOG_FILE);
+  return log.some((e) => e.key === `${medicineId}::${dateStr}`);
+}
+
+function markNotified(medicineId, dateStr, meta = {}) {
+  const log = readFile(NOTIF_LOG_FILE);
+  log.push({
+    key:       `${medicineId}::${dateStr}`,
+    medicineId,
+    dateStr,
+    sentAt:    new Date().toISOString(),
+    ...meta,
+  });
+  // Keep log to last 1000 entries
+  writeFile(NOTIF_LOG_FILE, log.slice(-1000));
+}
+
 module.exports = {
   getMedicines,
   getAllMedicines,
@@ -85,4 +107,6 @@ module.exports = {
   findUserByEmail,
   findUserById,
   createUser,
+  wasNotified,
+  markNotified,
 };

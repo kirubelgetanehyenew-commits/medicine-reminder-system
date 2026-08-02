@@ -17,14 +17,31 @@ function signToken(user) {
   );
 }
 
+function safeUser(user) {
+  return { id: user.id, name: user.name, email: user.email, phone: user.phone || "" };
+}
+
 // ── POST /api/auth/register ───────────────────────────────────────────────────
 
 router.post(
   "/register",
   [
-    body("name").trim().notEmpty().withMessage("Name is required"),
-    body("email").isEmail().withMessage("Valid email is required"),
-    body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
+    body("name")
+      .trim()
+      .notEmpty()
+      .withMessage("Name is required"),
+    body("email")
+      .isEmail()
+      .withMessage("Valid email is required"),
+    body("password")
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters"),
+    body("phone")
+      .trim()
+      .notEmpty()
+      .withMessage("Phone number is required")
+      .matches(/^\+?[1-9]\d{6,14}$/)
+      .withMessage("Enter a valid phone number with country code (e.g. +12345678901)"),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -32,7 +49,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
 
     try {
       if (db.findUserByEmail(email)) {
@@ -44,15 +61,30 @@ router.post(
         id: uuidv4(),
         name,
         email,
+        phone,           // stored for SMS notifications
         passwordHash,
         createdAt: new Date().toISOString(),
       });
 
       const token = signToken(user);
+
+      // Welcome email (non-blocking)
+      try {
+        const { sendEmailNotification } = require("../services/notificationService");
+        sendEmailNotification({
+          to:           email,
+          userName:     name,
+          medicineName: "Welcome to MediTrack!",
+          time:         "—",
+          dosage:       "",
+          category:     "",
+        }).catch(() => {});
+      } catch (_) {}
+
       return res.status(201).json({
         message: "Account created successfully.",
         token,
-        user: { id: user.id, name: user.name, email: user.email },
+        user:    safeUser(user),
       });
     } catch (err) {
       console.error("Register error:", err);
@@ -92,7 +124,7 @@ router.post(
       return res.json({
         message: "Login successful.",
         token,
-        user: { id: user.id, name: user.name, email: user.email },
+        user:    safeUser(user),
       });
     } catch (err) {
       console.error("Login error:", err);
@@ -108,7 +140,7 @@ const { protect } = require("../middleware/authMiddleware");
 router.get("/me", protect, (req, res) => {
   const user = db.findUserById(req.user.id);
   if (!user) return res.status(404).json({ message: "User not found." });
-  return res.json({ id: user.id, name: user.name, email: user.email });
+  return res.json(safeUser(user));
 });
 
 module.exports = router;
