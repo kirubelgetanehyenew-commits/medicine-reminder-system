@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt, FaBell, FaCalendarAlt,
   FaPlusCircle, FaHistory, FaUser,
-  FaSignOutAlt, FaCog,
+  FaSignOutAlt, FaCog, FaStickyNote,
 } from "react-icons/fa";
 import { clearSession, getUser } from "../services/api";
 
@@ -12,6 +12,7 @@ const mainNav = [
   { to: "/calendar",  icon: <FaCalendarAlt size={15} />,   label: "Calendar"     },
   { to: "/add",       icon: <FaPlusCircle size={15} />,    label: "Add Medicine" },
   { to: "/history",   icon: <FaHistory size={15} />,       label: "History"      },
+  { to: "/notes",     icon: <FaStickyNote size={15} />,    label: "Health Notes" },
 ];
 
 const accountNav = [

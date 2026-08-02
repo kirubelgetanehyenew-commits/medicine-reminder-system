@@ -31,6 +31,7 @@ if (process.env.NODE_ENV !== "production") {
 // ── routes ────────────────────────────────────────────────────────────────────
 app.use("/api/auth",      require("./routes/auth"));
 app.use("/api/medicines", require("./routes/medicines"));
+app.use("/api/notes",     require("./routes/notes"));
 
 // ── health check ──────────────────────────────────────────────────────────────
 app.get("/api/health", (_req, res) => {

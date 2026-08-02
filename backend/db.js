@@ -4,6 +4,7 @@ const path = require("path");
 const MEDICINES_FILE    = path.join(__dirname, "data", "medicines.json");
 const USERS_FILE        = path.join(__dirname, "data", "users.json");
 const NOTIF_LOG_FILE    = path.join(__dirname, "data", "notif_log.json");
+const NOTES_FILE        = path.join(__dirname, "data", "notes.json");
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -109,4 +110,41 @@ module.exports = {
   createUser,
   wasNotified,
   markNotified,
+  // notes
+  getNotes,
+  addNote,
+  updateNote,
+  deleteNote,
 };
+
+// ── notes ─────────────────────────────────────────────────────────────────────
+
+function getNotes(userId) {
+  return readFile(NOTES_FILE).filter((n) => n.userId === userId)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
+function addNote(note) {
+  const all = readFile(NOTES_FILE);
+  all.push(note);
+  writeFile(NOTES_FILE, all);
+  return note;
+}
+
+function updateNote(id, userId, updates) {
+  const all   = readFile(NOTES_FILE);
+  const index = all.findIndex((n) => n.id === id && n.userId === userId);
+  if (index === -1) return null;
+  all[index] = { ...all[index], ...updates, updatedAt: new Date().toISOString() };
+  writeFile(NOTES_FILE, all);
+  return all[index];
+}
+
+function deleteNote(id, userId) {
+  const all   = readFile(NOTES_FILE);
+  const index = all.findIndex((n) => n.id === id && n.userId === userId);
+  if (index === -1) return false;
+  all.splice(index, 1);
+  writeFile(NOTES_FILE, all);
+  return true;
+}

@@ -63,9 +63,27 @@ export const medicinesAPI = {
   toggleComplete: (id) =>
     api.patch(`/medicines/${id}/complete`).then((r) => r.data.medicine),
 
+  /** PATCH /api/medicines/:id/dose — record a dose + decrement pills */
+  recordDose: (id) =>
+    api.patch(`/medicines/${id}/dose`).then((r) => r.data.medicine),
+
+  /** PATCH /api/medicines/:id/refill — update stock count */
+  refill: (id, data) =>
+    api.patch(`/medicines/${id}/refill`, data).then((r) => r.data.medicine),
+
   /** DELETE /api/medicines/:id */
   remove: (id) =>
     api.delete(`/medicines/${id}`).then((r) => r.data),
+};
+
+// ── notes ─────────────────────────────────────────────────────────────────────
+
+export const notesAPI = {
+  getAll:  ()        => api.get("/notes")         .then((r) => r.data.notes),
+  create:  (data)    => api.post("/notes", data)   .then((r) => r.data.note),
+  update:  (id, d)   => api.put(`/notes/${id}`, d) .then((r) => r.data.note),
+  pin:     (id)      => api.patch(`/notes/${id}/pin`).then((r) => r.data.note),
+  remove:  (id)      => api.delete(`/notes/${id}`) .then((r) => r.data),
 };
 
 // ── auth helpers (localStorage session) ──────────────────────────────────────

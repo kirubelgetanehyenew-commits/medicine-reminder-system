@@ -35,11 +35,7 @@ function Login() {
     <div style={{ display: "flex", minHeight: "100vh" }}>
 
       {/* ── Left panel: image ── */}
-      <div style={{
-        flex: 1, display: "none",
-        position: "relative", overflow: "hidden",
-        ...(window.innerWidth > 900 ? { display: "block" } : {}),
-      }}
+      <div style={{ flex: 1, position: "relative", overflow: "hidden" }}
         className="auth-image-panel"
       >
         <div style={{

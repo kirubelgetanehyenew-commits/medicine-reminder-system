@@ -9,6 +9,7 @@ import AddMedicine     from "./pages/AddMedicine";
 import CalendarPage    from "./pages/CalendarPage";
 import Profile         from "./pages/Profile";
 import MedicineHistory from "./pages/MedicineHistory";
+import HealthNotes     from "./pages/HealthNotes";
 import ProtectedRoute  from "./components/ProtectedRoute";
 
 function App() {
@@ -21,12 +22,13 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         {/* Protected */}
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
-        <Route path="/add"       element={<ProtectedRoute><AddMedicine /></ProtectedRoute>} />
-        <Route path="/calendar"  element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
-        <Route path="/profile"   element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard />    </ProtectedRoute>} />
+        <Route path="/reminders" element={<ProtectedRoute><Reminders />    </ProtectedRoute>} />
+        <Route path="/add"       element={<ProtectedRoute><AddMedicine />  </ProtectedRoute>} />
+        <Route path="/calendar"  element={<ProtectedRoute><CalendarPage /> </ProtectedRoute>} />
+        <Route path="/profile"   element={<ProtectedRoute><Profile />      </ProtectedRoute>} />
         <Route path="/history"   element={<ProtectedRoute><MedicineHistory /></ProtectedRoute>} />
+        <Route path="/notes"     element={<ProtectedRoute><HealthNotes />  </ProtectedRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -23,6 +23,7 @@ function AddMedicine() {
   const [form, setForm] = useState({
     name: "", time: "", date: "", frequency: "Daily",
     category: "Tablet", dosage: "", notes: "", priority: "Medium",
+    pillsRemaining: "", refillAt: "5",
   });
   const [loading, setLoading] = useState(false);
   const [errors,  setErrors]  = useState({});
@@ -124,7 +125,11 @@ function AddMedicine() {
                     <option>High</option><option>Medium</option><option>Low</option>
                   </select>)}
 
-                <div />
+                {field("Pills Remaining",
+                  <input name="pillsRemaining" type="number" min="0" placeholder="e.g. 30 (optional)" value={form.pillsRemaining} onChange={set("pillsRemaining")} className="modern-input" />)}
+
+                {field("Refill Alert Threshold",
+                  <input name="refillAt" type="number" min="1" placeholder="e.g. 5" value={form.refillAt} onChange={set("refillAt")} className="modern-input" />)}
 
                 <div style={{ display: "flex", flexDirection: "column" }} className="full-width">
                   <label style={labelStyle}>Notes</label>

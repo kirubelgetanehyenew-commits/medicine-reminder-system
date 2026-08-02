@@ -100,22 +100,24 @@ router.post(
     }
 
     try {
-      const { name, time, date, category, dosage, notes, priority, frequency } = req.body;
+      const { name, time, date, category, dosage, notes, priority, frequency, pillsRemaining, refillAt } = req.body;
 
       const medicine = db.addMedicine({
-        id:        uuidv4(),
-        userId:    req.user.id,
-        name:      name.trim(),
+        id:              uuidv4(),
+        userId:          req.user.id,
+        name:            name.trim(),
         time,
         date,
-        category:  category  || "Tablet",
-        dosage:    dosage    || "",
-        notes:     notes     || "",
-        priority:  priority  || "Medium",
-        frequency: frequency || "Daily",
-        completed: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        category:        category        || "Tablet",
+        dosage:          dosage          || "",
+        notes:           notes           || "",
+        priority:        priority        || "Medium",
+        frequency:       frequency       || "Daily",
+        pillsRemaining:  pillsRemaining  != null ? Number(pillsRemaining) : null,
+        refillAt:        refillAt        != null ? Number(refillAt)        : 5,
+        completed:       false,
+        createdAt:       new Date().toISOString(),
+        updatedAt:       new Date().toISOString(),
       });
 
       return res.status(201).json({ message: "Medicine added.", medicine });
@@ -186,6 +188,52 @@ router.delete("/:id", (req, res) => {
     return res.json({ message: "Medicine deleted." });
   } catch (err) {
     return res.status(500).json({ message: "Failed to delete medicine." });
+  }
+});
+
+// ── PATCH /api/medicines/:id/refill ──────────────────────────────────────────
+// Resets pillsRemaining to the supplied count (or removes the stock field)
+
+router.patch("/:id/refill", (req, res) => {
+  try {
+    const { pillsRemaining, refillAt } = req.body;
+    const updates = {};
+    if (pillsRemaining != null) updates.pillsRemaining = Number(pillsRemaining);
+    if (refillAt       != null) updates.refillAt       = Number(refillAt);
+
+    const updated = db.updateMedicine(req.params.id, req.user.id, updates);
+    if (!updated) return res.status(404).json({ message: "Medicine not found." });
+    return res.json({ message: "Refill updated.", medicine: updated });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to update refill." });
+  }
+});
+
+// ── PATCH /api/medicines/:id/dose ─────────────────────────────────────────────
+// Decrement pillsRemaining by 1 when a dose is taken
+
+router.patch("/:id/dose", (req, res) => {
+  try {
+    const meds = db.getMedicines(req.user.id);
+    const med  = meds.find((m) => m.id === req.params.id);
+    if (!med) return res.status(404).json({ message: "Medicine not found." });
+
+    const updates = {};
+    if (med.pillsRemaining != null && med.pillsRemaining > 0) {
+      updates.pillsRemaining = med.pillsRemaining - 1;
+    }
+    // Also mark completed for the day
+    updates.completed    = true;
+    updates.completedAt  = new Date().toISOString();
+
+    const updated = db.updateMedicine(req.params.id, req.user.id, updates);
+    return res.json({ message: "Dose recorded.", medicine: updated });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to record dose." });
+  }
+});
+
+module.exports = router;
   }
 });
 
