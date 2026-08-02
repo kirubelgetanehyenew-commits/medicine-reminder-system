@@ -1,6 +1,6 @@
-const express   = require("express");
-const bcrypt    = require("bcryptjs");
-const jwt       = require("jsonwebtoken");
+const express  = require("express");
+const bcrypt   = require("bcryptjs");
+const jwt      = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const { body, validationResult } = require("express-validator");
 
@@ -11,14 +11,19 @@ const router = express.Router();
 
 function signToken(user) {
   return jwt.sign(
-    { id: user.id, email: user.email, name: user.name },
+    { id: user.id || user._id, email: user.email, name: user.name },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
   );
 }
 
 function safeUser(user) {
-  return { id: user.id, name: user.name, email: user.email, phone: user.phone || "" };
+  return {
+    id:    user.id || user._id,
+    name:  user.name,
+    email: user.email,
+    phone: user.phone || "",
+  };
 }
 
 // ── POST /api/auth/register ───────────────────────────────────────────────────
@@ -26,66 +31,48 @@ function safeUser(user) {
 router.post(
   "/register",
   [
-    body("name")
-      .trim()
-      .notEmpty()
-      .withMessage("Name is required"),
-    body("email")
-      .isEmail()
-      .withMessage("Valid email is required"),
-    body("password")
-      .isLength({ min: 6 })
-      .withMessage("Password must be at least 6 characters"),
+    body("name").trim().notEmpty().withMessage("Name is required"),
+    body("email").isEmail().withMessage("Valid email is required"),
+    body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
     body("phone")
-      .trim()
-      .notEmpty()
-      .withMessage("Phone number is required")
+      .trim().notEmpty().withMessage("Phone number is required")
       .matches(/^\+?[1-9]\d{6,14}$/)
       .withMessage("Enter a valid phone number with country code (e.g. +12345678901)"),
   ],
   async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     const { name, email, password, phone } = req.body;
 
     try {
-      if (db.findUserByEmail(email)) {
-        return res.status(409).json({ message: "Email already in use." });
-      }
+      const existing = await db.findUserByEmail(email);
+      if (existing) return res.status(409).json({ message: "Email already in use." });
 
       const passwordHash = await bcrypt.hash(password, 12);
-      const user = db.createUser({
-        id: uuidv4(),
-        name,
-        email,
-        phone,           // stored for SMS notifications
+      const user = await db.createUser({
+        _id: uuidv4(),
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
         passwordHash,
         createdAt: new Date().toISOString(),
       });
 
       const token = signToken(user);
 
-      // Welcome email (non-blocking)
-      try {
-        const { sendEmailNotification } = require("../services/notificationService");
-        sendEmailNotification({
-          to:           email,
-          userName:     name,
-          medicineName: "Welcome to MediTrack!",
-          time:         "—",
-          dosage:       "",
-          category:     "",
-        }).catch(() => {});
-      } catch (_) {}
-
-      return res.status(201).json({
-        message: "Account created successfully.",
-        token,
-        user:    safeUser(user),
+      // Welcome email — fire-and-forget, never block the response
+      setImmediate(() => {
+        try {
+          const { sendEmailNotification } = require("../services/notificationService");
+          sendEmailNotification({
+            to: email, userName: name,
+            medicineName: "Welcome to MediTrack!", time: "—", dosage: "", category: "",
+          }).catch(() => {});
+        } catch (_) {}
       });
+
+      return res.status(201).json({ message: "Account created successfully.", token, user: safeUser(user) });
     } catch (err) {
       console.error("Register error:", err);
       return res.status(500).json({ message: "Server error during registration." });
@@ -103,29 +90,19 @@ router.post(
   ],
   async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     const { email, password } = req.body;
 
     try {
-      const user = db.findUserByEmail(email);
-      if (!user) {
-        return res.status(401).json({ message: "Invalid email or password." });
-      }
+      const user = await db.findUserByEmail(email);
+      if (!user) return res.status(401).json({ message: "Invalid email or password." });
 
       const isMatch = await bcrypt.compare(password, user.passwordHash);
-      if (!isMatch) {
-        return res.status(401).json({ message: "Invalid email or password." });
-      }
+      if (!isMatch) return res.status(401).json({ message: "Invalid email or password." });
 
       const token = signToken(user);
-      return res.json({
-        message: "Login successful.",
-        token,
-        user:    safeUser(user),
-      });
+      return res.json({ message: "Login successful.", token, user: safeUser(user) });
     } catch (err) {
       console.error("Login error:", err);
       return res.status(500).json({ message: "Server error during login." });
@@ -137,10 +114,14 @@ router.post(
 
 const { protect } = require("../middleware/authMiddleware");
 
-router.get("/me", protect, (req, res) => {
-  const user = db.findUserById(req.user.id);
-  if (!user) return res.status(404).json({ message: "User not found." });
-  return res.json(safeUser(user));
+router.get("/me", protect, async (req, res) => {
+  try {
+    const user = await db.findUserById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found." });
+    return res.json(safeUser(user));
+  } catch (err) {
+    return res.status(500).json({ message: "Server error." });
+  }
 });
 
 // ── PATCH /api/auth/profile ───────────────────────────────────────────────────
@@ -152,32 +133,26 @@ router.patch(
     body("name").optional().trim().notEmpty().withMessage("Name cannot be empty"),
     body("email").optional().isEmail().withMessage("Valid email is required"),
     body("phone").optional().trim()
-      .matches(/^\+?[1-9]\d{6,14}$/)
-      .withMessage("Enter a valid phone number with country code"),
+      .matches(/^\+?[1-9]\d{6,14}$/).withMessage("Enter a valid phone number with country code"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    const users = db.getUsers ? undefined : null; // use db helpers
-    const all   = require("fs").existsSync(require("path").join(__dirname, "../data/users.json"))
-      ? JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "../data/users.json"), "utf8"))
-      : [];
+    try {
+      const { name, email, phone } = req.body;
+      const updates = {};
+      if (name)  updates.name  = name.trim();
+      if (email) updates.email = email.trim().toLowerCase();
+      if (phone) updates.phone = phone.trim();
 
-    const idx = all.findIndex(u => u.id === req.user.id);
-    if (idx === -1) return res.status(404).json({ message: "User not found." });
-
-    const { name, email, phone } = req.body;
-    if (name)  all[idx].name  = name.trim();
-    if (email) all[idx].email = email.trim();
-    if (phone) all[idx].phone = phone.trim();
-
-    require("fs").writeFileSync(
-      require("path").join(__dirname, "../data/users.json"),
-      JSON.stringify(all, null, 2)
-    );
-
-    return res.json(safeUser(all[idx]));
+      const updated = await db.updateUser(req.user.id, updates);
+      if (!updated) return res.status(404).json({ message: "User not found." });
+      return res.json(safeUser(updated));
+    } catch (err) {
+      console.error("Profile update error:", err);
+      return res.status(500).json({ message: "Server error." });
+    }
   }
 );
 
@@ -196,23 +171,14 @@ router.post(
 
     const { currentPassword, newPassword } = req.body;
     try {
-      const user = db.findUserById(req.user.id);
+      const user = await db.findUserById(req.user.id);
       if (!user) return res.status(404).json({ message: "User not found." });
 
       const match = await bcrypt.compare(currentPassword, user.passwordHash);
       if (!match) return res.status(401).json({ message: "Current password is incorrect." });
 
       const newHash = await bcrypt.hash(newPassword, 12);
-
-      const all = JSON.parse(require("fs").readFileSync(
-        require("path").join(__dirname, "../data/users.json"), "utf8"
-      ));
-      const idx = all.findIndex(u => u.id === req.user.id);
-      all[idx].passwordHash = newHash;
-      require("fs").writeFileSync(
-        require("path").join(__dirname, "../data/users.json"),
-        JSON.stringify(all, null, 2)
-      );
+      await db.updateUser(req.user.id, { passwordHash: newHash });
 
       return res.json({ message: "Password updated successfully." });
     } catch (err) {
