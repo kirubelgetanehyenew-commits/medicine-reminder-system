@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Navbar  from "../components/Navbar";
+import AppLayout from "../components/AppLayout";
 import AnalyticsChart from "../components/AnalyticsChart";
-import { medicinesAPI, getUser, clearSession } from "../services/api";
+import { medicinesAPI, getUser } from "../services/api";
 import { FaPills, FaCheckCircle, FaClock, FaTrophy } from "react-icons/fa";
 
 const col = (bg, border) => ({ background: bg, border: `1px solid ${border}` });
 
 function Dashboard() {
   const navigate = useNavigate();
-  const user = getUser();
-  const [medicines, setMedicines] = useState([]);
+  const user = getUser();  const [medicines, setMedicines] = useState([]);
   const [stats,     setStats]     = useState({ total: 0, completed: 0, pending: 0, successRate: 0 });
   const [loading,   setLoading]   = useState(true);
   const [error,     setError]     = useState("");
@@ -34,21 +32,16 @@ function Dashboard() {
   ];
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg-page)" }}>
-      <Sidebar />
-
-      <div style={{ flex: 1, padding: "28px 32px", overflow: "auto", minWidth: 0 }}>
-        <Navbar />
-
-        {/* Header */}
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-heading)", margin: 0 }}>
-            Dashboard
-          </h1>
-          <p style={{ color: "var(--text-muted)", marginTop: 4, fontSize: "0.88rem" }}>
-            Good to see you, <strong style={{ color: "var(--text-heading)" }}>{user?.name || "there"}</strong>. Here's your health overview.
-          </p>
-        </div>
+    <AppLayout>
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-heading)", margin: 0 }}>
+          Dashboard
+        </h1>
+        <p style={{ color: "var(--text-muted)", marginTop: 4, fontSize: "0.88rem" }}>
+          Good to see you, <strong style={{ color: "var(--text-heading)" }}>{user?.name || "there"}</strong>. Here's your health overview.
+        </p>
+      </div>
 
         {error && (
           <div style={{ background: "var(--red-bg)", border: "1px solid var(--red-border)", borderRadius: "var(--r-md)", padding: "12px 16px", marginBottom: 24, color: "var(--red)", fontSize: "0.85rem" }}>
@@ -152,8 +145,7 @@ function Dashboard() {
         )}
 
         <Link to="/add" className="fab">+</Link>
-      </div>
-    </div>
+    </AppLayout>
   );
 }
 

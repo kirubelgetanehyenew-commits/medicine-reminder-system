@@ -29,9 +29,11 @@ api.interceptors.response.use(
 // ── auth ──────────────────────────────────────────────────────────────────────
 
 export const authAPI = {
-  register: (data) => api.post("/auth/register", data).then((r) => r.data),
-  login:    (data) => api.post("/auth/login",    data).then((r) => r.data),
-  me:       ()     => api.get("/auth/me")              .then((r) => r.data),
+  register:       (data) => api.post("/auth/register",         data).then((r) => r.data),
+  login:          (data) => api.post("/auth/login",            data).then((r) => r.data),
+  me:             ()     => api.get("/auth/me")                    .then((r) => r.data),
+  updateProfile:  (data) => api.patch("/auth/profile",         data).then((r) => r.data),
+  changePassword: (data) => api.post("/auth/change-password",  data).then((r) => r.data),
 };
 
 // ── medicines ─────────────────────────────────────────────────────────────────

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import Sidebar from "../components/Sidebar";
-import Navbar  from "../components/Navbar";
+import AppLayout from "../components/AppLayout";
 import { medicinesAPI } from "../services/api";
 import { FaCheck, FaTrash, FaEdit, FaSave, FaTimes, FaSearch, FaPills } from "react-icons/fa";
 import toast from "react-hot-toast";
@@ -69,22 +68,18 @@ function Reminders() {
     p === "Medium" ? "badge-warning" : "badge-success";
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg-page)" }}>
-      <Sidebar />
-      <div style={{ flex: 1, padding: "28px 32px", overflow: "auto", minWidth: 0 }}>
-        <Navbar />
-
-        {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
-          <div>
-            <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-heading)", margin: 0 }}>
-              Reminders
-            </h1>
-            <p style={{ color: "var(--text-muted)", marginTop: 4, fontSize: "0.88rem" }}>
-              Manage, edit, and track all your medications.
-            </p>
-          </div>
+    <AppLayout>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
+        <div>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-heading)", margin: 0 }}>
+            Reminders
+          </h1>
+          <p style={{ color: "var(--text-muted)", marginTop: 4, fontSize: "0.88rem" }}>
+            Manage, edit, and track all your medications.
+          </p>
         </div>
+      </div>
 
         {/* Stats row */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginBottom: 20 }}>
@@ -210,8 +205,7 @@ function Reminders() {
             ))}
           </div>
         )}
-      </div>
-    </div>
+    </AppLayout>
   );
 }
 

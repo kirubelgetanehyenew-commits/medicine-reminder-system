@@ -590,3 +590,19 @@ body {
   background-clip: text;
 }
 .dark-mode .progress-track { background: var(--bg-subtle); }
+
+/* ═══════════════════════════════════════════════
+   AUTH SPLIT PANEL (Login / Register)
+═══════════════════════════════════════════════ */
+.auth-image-panel {
+  display: none;
+}
+@media (min-width: 860px) {
+  .auth-image-panel {
+    display: block;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   DASHBOARD FIX: remove old logout button
+═══════════════════════════════════════════════ */

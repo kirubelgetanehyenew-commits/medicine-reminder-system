@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import Navbar  from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
+import AppLayout from "../components/AppLayout";
 import { medicinesAPI } from "../services/api";
 import { FaPills } from "react-icons/fa";
 
@@ -30,21 +29,16 @@ function CalendarPage() {
   const selectedMeds = medicines.filter(m => m.date === selectedStr);
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg-page)" }}>
-      <Sidebar />
-
-      <div style={{ flex: 1, padding: "28px 32px", overflow: "auto", minWidth: 0 }}>
-        <Navbar />
-
-        {/* Header */}
-        <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-heading)", margin: 0 }}>
-            Calendar
-          </h1>
-          <p style={{ color: "var(--text-muted)", marginTop: 4, fontSize: "0.88rem" }}>
-            Browse your medications by date. Dots indicate scheduled medicines.
-          </p>
-        </div>
+    <AppLayout>
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-heading)", margin: 0 }}>
+          Calendar
+        </h1>
+        <p style={{ color: "var(--text-muted)", marginTop: 4, fontSize: "0.88rem" }}>
+          Browse your medications by date. Dots indicate scheduled medicines.
+        </p>
+      </div>
 
         {loading ? (
           <div style={{ textAlign: "center", padding: "80px 0", color: "var(--text-muted)", fontSize: "0.9rem" }}>Loading…</div>
@@ -136,8 +130,7 @@ function CalendarPage() {
             </div>
           </>
         )}
-      </div>
-    </div>
+    </AppLayout>
   );
 }
 

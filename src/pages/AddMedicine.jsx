@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar  from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
+import AppLayout from "../components/AppLayout";
 import { medicinesAPI } from "../services/api";
 import toast from "react-hot-toast";
 import { FaBell, FaCalendarAlt, FaClock, FaPills } from "react-icons/fa";
@@ -68,12 +67,8 @@ function AddMedicine() {
   );
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg-page)" }}>
-      <Sidebar />
-      <div style={{ flex: 1, padding: "28px 32px", overflow: "auto", minWidth: 0 }}>
-        <Navbar />
-
-        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+    <AppLayout>
+      <div style={{ maxWidth: 860, margin: "0 auto" }}>
           {/* Header */}
           <div style={{ marginBottom: 24 }}>
             <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-heading)", margin: 0 }}>
@@ -143,8 +138,7 @@ function AddMedicine() {
             </form>
           </div>
         </div>
-      </div>
-    </div>
+    </AppLayout>
   );
 }
 
